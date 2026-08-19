@@ -64,12 +64,20 @@ class Menu extends Model
     }
 
     /**
+     * @return HasMany<MenuSection, $this>
+     */
+    public function sections(): HasMany
+    {
+        return $this->hasMany(MenuSection::class)->orderBy('position');
+    }
+
+    /**
      * @return BelongsToMany<Product, $this>
      */
     public function products(): BelongsToMany
     {
         return $this->belongsToMany(Product::class, 'menu_products')
-            ->withPivot(['position', 'active', 'unavailable_reason'])
+            ->withPivot(['position', 'active', 'unavailable_reason', 'menu_section_id'])
             ->withTimestamps()
             ->orderByPivot('position');
     }

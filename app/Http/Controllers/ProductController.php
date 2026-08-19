@@ -34,7 +34,8 @@ class ProductController extends Controller
             })
             ->latest()
             ->paginate(15)
-            ->withQueryString();
+            ->withQueryString()
+            ->through(fn (Product $product): Product => $product->setAttribute('image_url', $product->imageUrl()));
 
         return Inertia::render('products/index', [
             'products' => $products,
@@ -58,7 +59,7 @@ class ProductController extends Controller
         Workspace $workspace,
         CreateProductAction $createProduct,
     ): RedirectResponse {
-        $createProduct->handle($workspace, $request->productData());
+        $createProduct->handle($workspace, $request->productData(), $request->uploadedImage());
 
         Inertia::flash('toast', [
             'type' => 'success',
@@ -75,7 +76,10 @@ class ProductController extends Controller
         $this->authorize('update', $product);
 
         return Inertia::render('products/edit', [
-            'product' => $product,
+            'product' => [
+                ...$product->only(['id', 'workspace_id', 'name', 'description', 'price', 'active', 'created_at', 'updated_at']),
+                'image_url' => $product->imageUrl(),
+            ],
         ]);
     }
 

@@ -1,11 +1,16 @@
-import { Form, Link } from '@inertiajs/react';
+import { Form, Link, usePage } from '@inertiajs/react';
 import { createContext, useContext } from 'react';
+import { ImageUploadField } from '@/components/image-upload-field';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { centsFromReaisInput, formatMoney } from '@/lib/money';
+import {
+    destroy as destroyImage,
+    store as storeImage,
+} from '@/routes/workspace/products/image';
 import type { Product } from '@/types';
 
 type ProductFormContextValue = {
@@ -43,6 +48,7 @@ function ProductForm({
         <Form
             action={action}
             method={method}
+            encType="multipart/form-data"
             transform={(data) => ({
                 ...data,
                 price: centsFromReaisInput(String(data.price ?? '')),
@@ -88,7 +94,31 @@ function Fields() {
                 />
                 <InputError message={errors.description} />
             </div>
+            {product ? (
+                <ProductImage product={product} />
+            ) : (
+                <ImageUploadField
+                    label="Foto"
+                    inputName="image"
+                    error={errors.image}
+                />
+            )}
         </div>
+    );
+}
+
+function ProductImage({ product }: { product: Product }) {
+    const { currentWorkspace } = usePage().props;
+    const slug = currentWorkspace?.slug ?? '';
+    const params = { workspace: slug, product: product.id };
+
+    return (
+        <ImageUploadField
+            label="Foto"
+            imageUrl={product.image_url}
+            storeUrl={storeImage.url(params)}
+            destroyUrl={destroyImage.url(params)}
+        />
     );
 }
 

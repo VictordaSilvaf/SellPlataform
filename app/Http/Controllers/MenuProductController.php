@@ -26,7 +26,7 @@ class MenuProductController extends Controller
     ): RedirectResponse {
         $this->ensureMenuInWorkspace($workspace, $menu);
 
-        $addProducts->handle($menu, $request->productIds());
+        $addProducts->handle($menu, $request->productIds(), $request->menuSectionId());
 
         Inertia::flash('toast', [
             'type' => 'success',
@@ -80,7 +80,7 @@ class MenuProductController extends Controller
     ): RedirectResponse {
         $this->ensureMenuInWorkspace($workspace, $menu);
 
-        $reorderProducts->handle($menu, $request->productIds());
+        $reorderProducts->handle($menu, $request->items());
 
         return back();
     }

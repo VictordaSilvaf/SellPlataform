@@ -75,6 +75,7 @@ class HandleInertiaRequests extends Middleware
                 'id' => $currentWorkspace->id,
                 'name' => $currentWorkspace->name,
                 'slug' => $currentWorkspace->slug,
+                'logo_url' => $currentWorkspace->logoUrl(),
             ] : null,
             'currentRole' => $currentRole?->value,
             'can' => [
@@ -85,6 +86,9 @@ class HandleInertiaRequests extends Middleware
                 'createSales' => $currentRole?->canCreateSales() ?? false,
                 'viewReports' => $currentRole?->canViewReports() ?? false,
                 'createWorkspace' => $user?->canCreateWorkspace() ?? false,
+                'manageBranding' => $currentWorkspace && $user
+                    ? $user->can('updateBranding', $currentWorkspace)
+                    : false,
             ],
             'unreadNotificationsCount' => $user?->unreadNotifications()->count() ?? 0,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',

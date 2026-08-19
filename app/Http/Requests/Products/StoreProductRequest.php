@@ -5,6 +5,7 @@ namespace App\Http\Requests\Products;
 use App\Models\Product;
 use App\Models\Workspace;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\UploadedFile;
 
 class StoreProductRequest extends FormRequest
 {
@@ -26,6 +27,7 @@ class StoreProductRequest extends FormRequest
             'description' => ['nullable', 'string', 'max:5000'],
             'price' => ['required', 'integer', 'min:1'],
             'active' => ['sometimes', 'boolean'],
+            'image' => ['nullable', 'file', 'max:10240', 'mimes:jpeg,jpg,png,webp'],
         ];
     }
 
@@ -36,7 +38,16 @@ class StoreProductRequest extends FormRequest
     {
         return [
             'price.min' => 'O preço deve ser maior que zero.',
+            'image.max' => 'O arquivo é muito grande. O limite é de 10 MB.',
+            'image.mimes' => 'Formato não suportado. Envie JPEG, PNG ou WebP.',
         ];
+    }
+
+    public function uploadedImage(): ?UploadedFile
+    {
+        $file = $this->file('image');
+
+        return $file instanceof UploadedFile ? $file : null;
     }
 
     /**

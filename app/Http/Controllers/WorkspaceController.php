@@ -40,10 +40,20 @@ class WorkspaceController extends Controller
 
     public function edit(Request $request, Workspace $workspace): Response
     {
-        $this->authorize('update', $workspace);
+        abort_unless(
+            $request->user()->can('update', $workspace)
+            || $request->user()->can('updateBranding', $workspace),
+            403,
+        );
 
         return Inertia::render('workspaces/settings', [
-            'workspace' => $workspace,
+            'workspace' => [
+                'id' => $workspace->id,
+                'name' => $workspace->name,
+                'slug' => $workspace->slug,
+                'logo_url' => $workspace->logoUrl(),
+                'cover_url' => $workspace->coverUrl(),
+            ],
         ]);
     }
 

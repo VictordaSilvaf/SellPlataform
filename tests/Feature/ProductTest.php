@@ -5,6 +5,9 @@ use App\Models\Product;
 use App\Models\User;
 use App\Models\Workspace;
 use App\Models\WorkspaceMember;
+use App\Support\Images\ImageVariant;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 test('an owner can create a product', function () {
     [$user, $workspace] = userWithWorkspace();
@@ -19,6 +22,41 @@ test('an owner can create a product', function () {
         ->assertRedirect(route('workspace.products.index', $workspace));
 
     expect(Product::query()->where('workspace_id', $workspace->id)->where('name', 'Camisa Preta')->exists())->toBeTrue();
+});
+
+test('a product can be created with an image', function () {
+    Storage::fake();
+    [$user, $workspace] = userWithWorkspace();
+
+    $this->actingAs($user)
+        ->post(route('workspace.products.store', $workspace), [
+            'name' => 'Cone de Chocolate',
+            'price' => 1200,
+            'image' => UploadedFile::fake()->image('photo.jpg', 400, 400),
+        ])
+        ->assertRedirect(route('workspace.products.index', $workspace));
+
+    $product = Product::query()->where('name', 'Cone de Chocolate')->first();
+
+    expect($product)->not->toBeNull()
+        ->and($product->image_path)->toBe(ImageVariant::ProductMain->pathFor($product->id))
+        ->and($product->image_version)->toBe(1)
+        ->and(Storage::disk()->exists($product->image_path))->toBeTrue();
+});
+
+test('an invalid image is rejected when creating a product', function () {
+    Storage::fake();
+    [$user, $workspace] = userWithWorkspace();
+
+    $this->actingAs($user)
+        ->post(route('workspace.products.store', $workspace), [
+            'name' => 'Cone de Chocolate',
+            'price' => 1200,
+            'image' => UploadedFile::fake()->image('tiny.jpg', 100, 100),
+        ])
+        ->assertSessionHasErrors('image');
+
+    expect(Product::query()->where('name', 'Cone de Chocolate')->exists())->toBeFalse();
 });
 
 test('a product can be updated', function () {

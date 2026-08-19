@@ -23,6 +23,7 @@ class AddMenuProductsRequest extends FormRequest
         return [
             'product_ids' => ['required', 'array', 'min:1'],
             'product_ids.*' => ['integer'],
+            'menu_section_id' => ['nullable', 'integer'],
         ];
     }
 
@@ -35,5 +36,12 @@ class AddMenuProductsRequest extends FormRequest
         $ids = array_values(array_map('intval', $this->validated('product_ids')));
 
         return $ids;
+    }
+
+    public function menuSectionId(): ?int
+    {
+        $value = $this->validated('menu_section_id');
+
+        return $value === null ? null : (int) $value;
     }
 }

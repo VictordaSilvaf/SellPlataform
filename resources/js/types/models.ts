@@ -5,6 +5,7 @@ export type WorkspaceSummary = {
     name: string;
     slug: string;
     role?: string;
+    logo_url?: string | null;
 };
 
 export type WorkspaceRole = 'OWNER' | 'ADMIN' | 'MEMBER';
@@ -22,15 +23,26 @@ export type Menu = {
     public_url: string;
 };
 
+export type MenuSection = {
+    id: number;
+    name: string;
+    description: string | null;
+    active: boolean;
+    position: number;
+    items: MenuProductItem[];
+};
+
 export type MenuProductItem = {
     id: number;
     product_id: number;
+    menu_section_id: number | null;
     name: string;
     description: string | null;
     price: number;
     product_active: boolean;
     active: boolean;
     position: number;
+    image_url: string | null;
 };
 
 export type Product = {
@@ -40,6 +52,7 @@ export type Product = {
     description: string | null;
     price: number;
     active: boolean;
+    image_url?: string | null;
     created_at: string;
     updated_at: string;
 };

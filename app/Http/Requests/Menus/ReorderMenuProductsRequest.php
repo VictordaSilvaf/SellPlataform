@@ -16,24 +16,30 @@ class ReorderMenuProductsRequest extends FormRequest
     }
 
     /**
-     * @return array<string, list<string>>
+     * @return array<string, mixed>
      */
     public function rules(): array
     {
         return [
-            'product_ids' => ['required', 'array', 'min:1'],
-            'product_ids.*' => ['integer'],
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.product_id' => ['required', 'integer'],
+            'items.*.menu_section_id' => ['nullable', 'integer'],
+            'items.*.position' => ['required', 'integer', 'min:1'],
         ];
     }
 
     /**
-     * @return list<int>
+     * @return list<array{product_id: int, menu_section_id: int|null, position: int}>
      */
-    public function productIds(): array
+    public function items(): array
     {
-        /** @var list<int> $ids */
-        $ids = array_values(array_map('intval', $this->validated('product_ids')));
+        /** @var list<array{product_id: int|string, menu_section_id: int|string|null, position: int|string}> $items */
+        $items = $this->validated('items');
 
-        return $ids;
+        return array_map(fn (array $item): array => [
+            'product_id' => (int) $item['product_id'],
+            'menu_section_id' => $item['menu_section_id'] !== null ? (int) $item['menu_section_id'] : null,
+            'position' => (int) $item['position'],
+        ], $items);
     }
 }

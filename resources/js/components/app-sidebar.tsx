@@ -85,7 +85,8 @@ export function AppSidebar() {
                 <SidebarGroup className="px-2 py-0">
                     <SidebarGroupLabel>Configurações</SidebarGroupLabel>
                     <SidebarMenu>
-                        {workspace && can.manageWorkspace && (
+                        {workspace &&
+                            (can.manageWorkspace || can.manageBranding) && (
                             <SidebarMenuItem>
                                 <SidebarMenuButton asChild>
                                     <Link

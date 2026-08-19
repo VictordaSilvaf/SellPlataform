@@ -150,6 +150,23 @@ test('products can be added to a menu and duplicates are ignored', function () {
         ->toBe([$first->id, $second->id]);
 });
 
+test('products are added in the requested order not by id', function () {
+    [$user, $workspace] = userWithWorkspace();
+    $menu = Menu::factory()->create(['workspace_id' => $workspace->id]);
+    $first = Product::factory()->create(['workspace_id' => $workspace->id]);
+    $second = Product::factory()->create(['workspace_id' => $workspace->id]);
+    $third = Product::factory()->create(['workspace_id' => $workspace->id]);
+
+    $this->actingAs($user)
+        ->post(route('workspace.menus.products.store', [$workspace, $menu]), [
+            'product_ids' => [$third->id, $first->id, $second->id],
+        ])
+        ->assertRedirect();
+
+    expect($menu->menuProducts()->orderBy('position')->pluck('product_id')->all())
+        ->toBe([$third->id, $first->id, $second->id]);
+});
+
 test('a product from another workspace is not added to the menu', function () {
     [$user, $workspace] = userWithWorkspace();
     $menu = Menu::factory()->create(['workspace_id' => $workspace->id]);
@@ -228,7 +245,11 @@ test('menu products can be reordered', function () {
 
     $this->actingAs($user)
         ->patch(route('workspace.menus.products.order', [$workspace, $menu]), [
-            'product_ids' => [$third->id, $first->id, $second->id],
+            'items' => [
+                ['product_id' => $third->id, 'menu_section_id' => null, 'position' => 1],
+                ['product_id' => $first->id, 'menu_section_id' => null, 'position' => 2],
+                ['product_id' => $second->id, 'menu_section_id' => null, 'position' => 3],
+            ],
         ])
         ->assertRedirect();
 
@@ -386,9 +407,10 @@ test('a guest can view an active public menu without logging in', function () {
             ->where('available', true)
             ->where('workspace.name', $menu->workspace->name)
             ->where('menu.name', 'Cardápio Principal')
-            ->has('products', 1)
-            ->where('products.0.name', 'X-Bacon')
-            ->where('products.0.price', 3490)
+            ->has('unsectioned', 1)
+            ->where('unsectioned.0.name', 'X-Bacon')
+            ->where('unsectioned.0.price', 3490)
+            ->has('sections', 0)
             ->missing('menu.id')
             ->missing('workspace.id')
             ->missing('workspace.slug'));
@@ -408,7 +430,8 @@ test('a draft public menu shows the unavailable page', function () {
         ->assertInertia(fn ($page) => $page
             ->component('public/menu')
             ->where('available', false)
-            ->has('products', 0));
+            ->has('unsectioned', 0)
+            ->has('sections', 0));
 });
 
 test('an inactive public menu shows the unavailable page', function () {
@@ -419,5 +442,6 @@ test('an inactive public menu shows the unavailable page', function () {
         ->assertInertia(fn ($page) => $page
             ->component('public/menu')
             ->where('available', false)
-            ->has('products', 0));
+            ->has('unsectioned', 0)
+            ->has('sections', 0));
 });

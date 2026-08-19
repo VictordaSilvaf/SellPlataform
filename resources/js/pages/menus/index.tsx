@@ -102,7 +102,7 @@ export default function MenusIndex({
                                         <MenuQrDialog
                                             name={menu.name}
                                             publicUrl={menu.public_url}
-                                            slug={menu.slug}
+                                            logoUrl={currentWorkspace?.logo_url}
                                             trigger={
                                                 <Button
                                                     size="sm"

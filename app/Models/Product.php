@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Images\ImageUrl;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -19,13 +20,15 @@ use Illuminate\Support\Carbon;
  * @property string|null $description
  * @property int $price
  * @property bool $active
+ * @property string|null $image_path
+ * @property int $image_version
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Workspace $workspace
  *
  * @method static Builder<static> active()
  */
-#[Fillable(['workspace_id', 'name', 'description', 'price', 'active'])]
+#[Fillable(['workspace_id', 'name', 'description', 'price', 'active', 'image_path', 'image_version'])]
 class Product extends Model
 {
     /** @use HasFactory<ProductFactory> */
@@ -39,6 +42,7 @@ class Product extends Model
         return [
             'price' => 'integer',
             'active' => 'boolean',
+            'image_version' => 'integer',
         ];
     }
 
@@ -64,7 +68,7 @@ class Product extends Model
     public function menus(): BelongsToMany
     {
         return $this->belongsToMany(Menu::class, 'menu_products')
-            ->withPivot(['position', 'active', 'unavailable_reason'])
+            ->withPivot(['position', 'active', 'unavailable_reason', 'menu_section_id'])
             ->withTimestamps();
     }
 
@@ -80,5 +84,10 @@ class Product extends Model
     public function hasSales(): bool
     {
         return $this->saleItems()->exists();
+    }
+
+    public function imageUrl(): ?string
+    {
+        return ImageUrl::public($this->image_path, $this->image_version);
     }
 }

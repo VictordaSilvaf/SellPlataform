@@ -17,12 +17,12 @@ import { useClipboard } from '@/hooks/use-clipboard';
 export function MenuQrDialog({
     name,
     publicUrl,
-    slug,
+    logoUrl,
     trigger,
 }: {
     name: string;
     publicUrl: string;
-    slug: string;
+    logoUrl?: string | null;
     trigger: ReactNode;
 }) {
     const [open, setOpen] = useState(false);
@@ -33,13 +33,17 @@ export function MenuQrDialog({
 
         if (copied) {
             toast.success('Link copiado');
+
+            return;
         }
+
+        toast.error('Não foi possível copiar o link.');
     }
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>{trigger}</DialogTrigger>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="motion-safe:duration-200 sm:max-w-md">
                 <DialogHeader className="text-center sm:text-center">
                     <DialogTitle>{name}</DialogTitle>
                     <DialogDescription>
@@ -52,15 +56,30 @@ export function MenuQrDialog({
                             value={publicUrl}
                             size={240}
                             className="size-60"
+                            imageSettings={
+                                logoUrl
+                                    ? {
+                                          src: logoUrl,
+                                          height: 40,
+                                          width: 40,
+                                          excavate: true,
+                                      }
+                                    : undefined
+                            }
                         />
                     </div>
-                    <p className="text-center text-sm break-all text-muted-foreground">
-                        /cardapio/{slug}
+                    <p className="w-full text-center text-sm text-muted-foreground [overflow-wrap:anywhere]">
+                        {publicUrl}
                     </p>
                 </div>
                 <DialogFooter className="sm:justify-center">
                     <Button type="button" onClick={copyLink}>
                         Copiar link
+                    </Button>
+                    <Button type="button" variant="outline" asChild>
+                        <a href={publicUrl} target="_blank" rel="noreferrer">
+                            Abrir cardápio
+                        </a>
                     </Button>
                     <Button
                         type="button"

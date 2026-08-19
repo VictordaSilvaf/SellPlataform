@@ -23,6 +23,11 @@ class WorkspacePolicy
         return $user->hasRoleIn($workspace, WorkspaceRole::Owner);
     }
 
+    public function updateBranding(User $user, Workspace $workspace): bool
+    {
+        return $user->hasRoleIn($workspace, WorkspaceRole::Owner, WorkspaceRole::Admin);
+    }
+
     public function delete(User $user, Workspace $workspace): bool
     {
         return $user->hasRoleIn($workspace, WorkspaceRole::Owner);

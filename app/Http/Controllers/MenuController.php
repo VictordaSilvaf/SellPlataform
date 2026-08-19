@@ -81,9 +81,22 @@ class MenuController extends Controller
         $this->ensureMenuInWorkspace($workspace, $menu);
         $this->authorize('view', $menu);
 
-        $menu->load(['menuProducts.product']);
+        $menu->load(['sections.menuProducts.product', 'menuProducts.product']);
 
         $attachedIds = $menu->menuProducts->pluck('product_id');
+
+        $mapItem = fn ($item): array => [
+            'id' => $item->id,
+            'product_id' => $item->product_id,
+            'menu_section_id' => $item->menu_section_id,
+            'name' => $item->product->name,
+            'description' => $item->product->description,
+            'price' => $item->product->price,
+            'product_active' => $item->product->active,
+            'active' => $item->active,
+            'position' => $item->position,
+            'image_url' => $item->product->imageUrl(),
+        ];
 
         return Inertia::render('menus/show', [
             'menu' => [
@@ -94,16 +107,19 @@ class MenuController extends Controller
                 'status' => $menu->status->value,
                 'public_url' => route('menus.public', $menu),
             ],
-            'items' => $menu->menuProducts->map(fn ($item) => [
-                'id' => $item->id,
-                'product_id' => $item->product_id,
-                'name' => $item->product->name,
-                'description' => $item->product->description,
-                'price' => $item->product->price,
-                'product_active' => $item->product->active,
-                'active' => $item->active,
-                'position' => $item->position,
+            'sections' => $menu->sections->map(fn ($section): array => [
+                'id' => $section->id,
+                'name' => $section->name,
+                'description' => $section->description,
+                'active' => $section->active,
+                'position' => $section->position,
+                'items' => $section->menuProducts->map($mapItem)->values(),
             ])->values(),
+            'unsectionedItems' => $menu->menuProducts
+                ->whereNull('menu_section_id')
+                ->sortBy('position')
+                ->values()
+                ->map($mapItem),
             'availableProducts' => $workspace->products()
                 ->whereNotIn('id', $attachedIds)
                 ->orderBy('name')

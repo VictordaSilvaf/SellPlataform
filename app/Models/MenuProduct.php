@@ -13,6 +13,7 @@ use Illuminate\Support\Carbon;
 /**
  * @property int $id
  * @property int $menu_id
+ * @property int|null $menu_section_id
  * @property int $product_id
  * @property int $position
  * @property bool $active
@@ -22,7 +23,7 @@ use Illuminate\Support\Carbon;
  * @property-read Menu $menu
  * @property-read Product $product
  */
-#[Fillable(['menu_id', 'product_id', 'position', 'active', 'unavailable_reason'])]
+#[Fillable(['menu_id', 'menu_section_id', 'product_id', 'position', 'active', 'unavailable_reason'])]
 class MenuProduct extends Model
 {
     /** @use HasFactory<MenuProductFactory> */
@@ -60,6 +61,14 @@ class MenuProduct extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    /**
+     * @return BelongsTo<MenuSection, $this>
+     */
+    public function section(): BelongsTo
+    {
+        return $this->belongsTo(MenuSection::class, 'menu_section_id');
     }
 
     public function isPubliclyAvailable(): bool

@@ -26,6 +26,7 @@ declare module '@inertiajs/core' {
                 createSales: boolean;
                 viewReports: boolean;
                 createWorkspace: boolean;
+                manageBranding: boolean;
             };
             [key: string]: unknown;
         };
