@@ -70,55 +70,53 @@ export function AppSidebar() {
 
             <SidebarContent>
                 {mainNavItems.length > 0 && <NavMain items={mainNavItems} />}
-                {workspace && (
-                    <SidebarGroup className="px-2 py-0">
-                        <SidebarGroupLabel>Configurações</SidebarGroupLabel>
-                        <SidebarMenu>
-                            {can.manageWorkspace && (
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton asChild>
-                                        <Link
-                                            href={workspaceSettings(
-                                                workspace.slug,
-                                            )}
-                                        >
-                                            <Settings />
-                                            <span>Workspace</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            )}
-                            {can.manageMembers && (
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton asChild>
-                                        <Link href={members(workspace.slug)}>
-                                            <Settings />
-                                            <span>Membros</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            )}
-                            {can.manageWorkspace && (
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton asChild>
-                                        <Link href={plan(workspace.slug)}>
-                                            <Settings />
-                                            <span>Plano</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            )}
+                <SidebarGroup className="px-2 py-0">
+                    <SidebarGroupLabel>Configurações</SidebarGroupLabel>
+                    <SidebarMenu>
+                        {workspace && can.manageWorkspace && (
                             <SidebarMenuItem>
                                 <SidebarMenuButton asChild>
-                                    <Link href={editProfile()}>
+                                    <Link
+                                        href={workspaceSettings(
+                                            workspace.slug,
+                                        )}
+                                    >
                                         <Settings />
-                                        <span>Conta</span>
+                                        <span>Workspace</span>
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
-                        </SidebarMenu>
-                    </SidebarGroup>
-                )}
+                        )}
+                        {workspace && can.manageMembers && (
+                            <SidebarMenuItem>
+                                <SidebarMenuButton asChild>
+                                    <Link href={members(workspace.slug)}>
+                                        <Settings />
+                                        <span>Membros</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        )}
+                        {workspace && can.manageWorkspace && (
+                            <SidebarMenuItem>
+                                <SidebarMenuButton asChild>
+                                    <Link href={plan(workspace.slug)}>
+                                        <Settings />
+                                        <span>Plano</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        )}
+                        <SidebarMenuItem>
+                            <SidebarMenuButton asChild>
+                                <Link href={editProfile()}>
+                                    <Settings />
+                                    <span>Conta</span>
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarGroup>
             </SidebarContent>
 
             <SidebarFooter>

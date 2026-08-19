@@ -2,6 +2,18 @@
 
 use App\Models\User;
 
+test('account settings keep workspace navigation in shared props', function () {
+    [$user, $workspace] = userWithWorkspace();
+
+    $this->actingAs($user)
+        ->get(route('profile.edit'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('currentWorkspace.slug', $workspace->slug)
+            ->where('can.manageWorkspace', true)
+            ->where('can.manageMembers', true));
+});
+
 test('profile page is displayed', function () {
     $user = User::factory()->create();
 

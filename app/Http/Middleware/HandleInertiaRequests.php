@@ -4,11 +4,14 @@ namespace App\Http\Middleware;
 
 use App\Models\Workspace;
 use App\Models\WorkspaceMember;
+use App\Support\UserHome;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
+    public function __construct(private UserHome $userHome) {}
+
     /**
      * The root template that's loaded on the first page visit.
      *
@@ -40,6 +43,11 @@ class HandleInertiaRequests extends Middleware
         $user = $request->user();
         $workspace = $request->route('workspace');
         $currentWorkspace = $workspace instanceof Workspace ? $workspace : null;
+
+        if (! $currentWorkspace && $user) {
+            $currentWorkspace = $this->userHome->current($user);
+        }
+
         $currentRole = $currentWorkspace && $user
             ? $user->roleIn($currentWorkspace)
             : null;
