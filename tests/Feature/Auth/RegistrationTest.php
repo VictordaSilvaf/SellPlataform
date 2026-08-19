@@ -23,3 +23,7 @@ test('new users can register', function () {
     $this->assertAuthenticated();
     $response->assertRedirect(route('verification.notice', absolute: false));
 });
+
+test('the resend php client is available for the mailer', function () {
+    expect(class_exists(Resend::class))->toBeTrue();
+});
