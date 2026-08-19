@@ -1,0 +1,17 @@
+{
+	email {$CADDY_EMAIL}
+}
+
+import /etc/caddy/sites/*.caddy
+
+{$APP_DOMAIN} {
+	encode gzip zstd
+	root * /var/www/html/public
+	php_fastcgi app:9000
+	file_server
+	header {
+		-Server
+		X-Content-Type-Options nosniff
+		Referrer-Policy same-origin
+	}
+}

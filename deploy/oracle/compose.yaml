@@ -1,0 +1,168 @@
+name: sellplataform
+
+services:
+    caddy:
+        build:
+            context: ../..
+            dockerfile: deploy/oracle/Dockerfile
+            target: caddy
+        restart: unless-stopped
+        ports:
+            - '80:80'
+            - '443:443'
+            - '443:443/udp'
+        environment:
+            APP_DOMAIN: '${APP_DOMAIN}'
+            CADDY_EMAIL: '${CADDY_EMAIL}'
+        volumes:
+            - ./Caddyfile:/etc/caddy/Caddyfile:ro
+            - ./sites:/etc/caddy/sites:ro
+            - caddy_data:/data
+            - caddy_config:/config
+            - storage_public:/var/www/html/public/storage:ro
+        depends_on:
+            app:
+                condition: service_healthy
+        networks:
+            - oracle
+            - edge
+
+    app:
+        build:
+            context: ../..
+            dockerfile: deploy/oracle/Dockerfile
+            target: app
+        restart: unless-stopped
+        env_file:
+            - ../../.env
+        environment:
+            RUN_BOOTSTRAP: 'true'
+        volumes:
+            - laravel_storage:/var/www/html/storage
+            - laravel_cache:/var/www/html/bootstrap/cache
+            - storage_public:/var/www/html/storage/app/public
+        healthcheck:
+            test: ['CMD-SHELL', 'test -f /tmp/app-ready']
+            interval: 5s
+            timeout: 3s
+            retries: 30
+            start_period: 40s
+        depends_on:
+            pgsql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+        networks:
+            - oracle
+
+    queue:
+        build:
+            context: ../..
+            dockerfile: deploy/oracle/Dockerfile
+            target: app
+        restart: unless-stopped
+        env_file:
+            - ../../.env
+        environment:
+            RUN_BOOTSTRAP: 'false'
+        command: ['php', 'artisan', 'queue:work', 'rabbitmq', '--sleep=1', '--tries=3']
+        volumes:
+            - laravel_storage:/var/www/html/storage
+            - laravel_cache:/var/www/html/bootstrap/cache
+            - storage_public:/var/www/html/storage/app/public
+        depends_on:
+            app:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+        networks:
+            - oracle
+
+    scheduler:
+        build:
+            context: ../..
+            dockerfile: deploy/oracle/Dockerfile
+            target: app
+        restart: unless-stopped
+        env_file:
+            - ../../.env
+        environment:
+            RUN_BOOTSTRAP: 'false'
+        command: ['php', 'artisan', 'schedule:work']
+        volumes:
+            - laravel_storage:/var/www/html/storage
+            - laravel_cache:/var/www/html/bootstrap/cache
+            - storage_public:/var/www/html/storage/app/public
+        depends_on:
+            app:
+                condition: service_healthy
+        networks:
+            - oracle
+
+    pgsql:
+        image: postgres:18-alpine
+        restart: unless-stopped
+        environment:
+            PGPASSWORD: '${DB_PASSWORD}'
+            POSTGRES_DB: '${DB_DATABASE}'
+            POSTGRES_USER: '${DB_USERNAME}'
+            POSTGRES_PASSWORD: '${DB_PASSWORD}'
+        volumes:
+            - oracle_pgsql:/var/lib/postgresql
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}']
+            interval: 5s
+            timeout: 5s
+            retries: 10
+        networks:
+            - oracle
+
+    redis:
+        image: redis:alpine
+        restart: unless-stopped
+        volumes:
+            - oracle_redis:/data
+        healthcheck:
+            test: ['CMD', 'redis-cli', 'ping']
+            interval: 5s
+            timeout: 3s
+            retries: 10
+        networks:
+            - oracle
+
+    rabbitmq:
+        image: rabbitmq:4-alpine
+        hostname: rabbitmq
+        restart: unless-stopped
+        environment:
+            RABBITMQ_DEFAULT_USER: '${RABBITMQ_USER}'
+            RABBITMQ_DEFAULT_PASS: '${RABBITMQ_PASSWORD}'
+            RABBITMQ_DEFAULT_VHOST: '${RABBITMQ_VHOST:-/}'
+        volumes:
+            - oracle_rabbitmq:/var/lib/rabbitmq
+        healthcheck:
+            test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
+            interval: 10s
+            timeout: 5s
+            retries: 5
+            start_period: 20s
+        networks:
+            - oracle
+
+networks:
+    oracle:
+        driver: bridge
+    edge:
+        name: edge
+
+volumes:
+    oracle_pgsql:
+    oracle_redis:
+    oracle_rabbitmq:
+    laravel_storage:
+    laravel_cache:
+    storage_public:
+    caddy_data:
+    caddy_config:

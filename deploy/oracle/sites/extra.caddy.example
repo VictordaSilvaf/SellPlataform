@@ -1,0 +1,14 @@
+# Copy to extra.caddy (this filename is not loaded).
+# 1. DNS A record for the host -> same Oracle public IP.
+# 2. Other compose: do not publish 80/443. Attach the app service to network `edge`.
+# 3. Use the container_name (or service name on `edge`) below.
+#
+# victorsf.com, www.victorsf.com {
+# 	encode gzip zstd
+# 	reverse_proxy portfolio:80
+# }
+#
+# outro.victorsf.com {
+# 	encode gzip zstd
+# 	reverse_proxy outro:3000
+# }

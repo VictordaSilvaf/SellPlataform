@@ -1,0 +1,2 @@
+# Extra sites go in sibling *.caddy files (see extra.caddy.example).
+# This file keeps the Caddy import glob from being empty.
