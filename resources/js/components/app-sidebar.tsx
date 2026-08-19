@@ -77,9 +77,7 @@ export function AppSidebar() {
                             <SidebarMenuItem>
                                 <SidebarMenuButton asChild>
                                     <Link
-                                        href={workspaceSettings(
-                                            workspace.slug,
-                                        )}
+                                        href={workspaceSettings(workspace.slug)}
                                     >
                                         <Settings />
                                         <span>Workspace</span>
