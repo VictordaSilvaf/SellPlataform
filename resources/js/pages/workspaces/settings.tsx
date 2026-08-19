@@ -29,7 +29,7 @@ export default function WorkspaceSettings({
     return (
         <>
             <Head title="Workspace" />
-            <div className="flex flex-col gap-8 p-4">
+            <div className="flex flex-col gap-8 px-4 py-8 md:px-8">
                 <Heading
                     title="Workspace"
                     description="Edite o nome do ambiente ou exclua-o."
@@ -57,7 +57,7 @@ export default function WorkspaceSettings({
                         </>
                     )}
                 </Form>
-                <div className="max-w-lg rounded-lg border border-destructive/30 p-4">
+                <div className="max-w-lg rounded-lg border border-danger-soft bg-danger-soft p-4">
                     <h3 className="font-medium">Excluir ambiente</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
                         Esta ação remove produtos, vendas e membros deste

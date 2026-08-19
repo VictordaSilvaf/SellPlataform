@@ -20,7 +20,7 @@ export default function SalesCreate({
     return (
         <>
             <Head title="Nova venda" />
-            <div className="mx-auto flex max-w-4xl flex-col gap-6 p-4">
+            <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-8 md:px-8">
                 <Heading title="Nova venda" />
                 {products.length === 0 ? (
                     <p className="text-sm text-muted-foreground">

@@ -1,7 +1,7 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { Bar, BarChart, Tooltip, XAxis, YAxis } from 'recharts';
 import Heading from '@/components/heading';
-import { Badge } from '@/components/ui/badge';
+import { SaleStatusBadge } from '@/components/sales/sale-status-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer } from '@/components/ui/chart';
@@ -49,7 +49,7 @@ export default function DashboardIndex({
     return (
         <>
             <Head title="Dashboard" />
-            <div className="flex flex-col gap-6 p-4">
+            <div className="flex flex-col gap-6 px-4 py-8 md:px-8">
                 <Heading
                     title="Dashboard"
                     description="Acompanhe os indicadores deste ambiente."
@@ -62,7 +62,7 @@ export default function DashboardIndex({
                                     {card.title}
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="text-2xl font-semibold">
+                            <CardContent className="text-2xl font-bold">
                                 {card.value}
                             </CardContent>
                         </Card>
@@ -142,7 +142,7 @@ export default function DashboardIndex({
                                     workspace: slug,
                                     sale: sale.id,
                                 })}
-                                className="flex items-center justify-between rounded-md border px-3 py-2"
+                                className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2"
                             >
                                 <div>
                                     <p className="font-medium">#{sale.id}</p>
@@ -155,13 +155,7 @@ export default function DashboardIndex({
                                 </div>
                                 <div className="text-right">
                                     <p>{formatMoney(sale.total)}</p>
-                                    <Badge variant="secondary">
-                                        {sale.status === 'PAID'
-                                            ? 'Pago'
-                                            : sale.status === 'PENDING'
-                                              ? 'Pendente'
-                                              : 'Cancelado'}
-                                    </Badge>
+                                    <SaleStatusBadge status={sale.status} />
                                 </div>
                             </Link>
                         ))}

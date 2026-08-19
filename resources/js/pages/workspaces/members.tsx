@@ -40,7 +40,7 @@ export default function WorkspaceMembers({
     return (
         <>
             <Head title="Membros" />
-            <div className="flex flex-col gap-8 p-4">
+            <div className="flex flex-col gap-8 px-4 py-8 md:px-8">
                 <Heading
                     title="Membros"
                     description="Convide pessoas para trabalhar neste ambiente."

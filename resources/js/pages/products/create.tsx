@@ -10,7 +10,7 @@ export default function ProductsCreate() {
     return (
         <>
             <Head title="Novo produto" />
-            <div className="mx-auto flex max-w-2xl flex-col gap-6 p-4">
+            <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-8 md:px-8">
                 <Heading title="Novo produto" />
                 <ProductForm action={store.url(slug)} method="post">
                     <ProductForm.Fields />

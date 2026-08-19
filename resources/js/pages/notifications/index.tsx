@@ -13,7 +13,7 @@ export default function NotificationsIndex({
     return (
         <>
             <Head title="Notificações" />
-            <div className="mx-auto flex max-w-3xl flex-col gap-6 p-4">
+            <div className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-8 md:px-8">
                 <Heading title="Notificações" />
                 {notifications.data.length === 0 && (
                     <p className="text-sm text-muted-foreground">

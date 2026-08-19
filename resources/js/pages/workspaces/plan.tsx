@@ -16,7 +16,7 @@ export default function WorkspacePlan({ plan }: PlanProps) {
     return (
         <>
             <Head title="Plano" />
-            <div className="flex flex-col gap-6 p-4">
+            <div className="flex flex-col gap-6 px-4 py-8 md:px-8">
                 <Heading
                     title="Plano"
                     description="Seu plano atual e os limites do ambiente."

@@ -299,11 +299,11 @@ function Payment() {
                         onValueChange={field.onChange}
                         className="flex flex-row items-center gap-2"
                     >
-                        <div className="flex items-center gap-2 px-6 py-4 border rounded-md">
+                        <div className="flex items-center gap-2 rounded-md border px-6 py-4">
                             <RadioGroupItem value="PAID" id="status-paid" />
                             <Label htmlFor="status-paid">Pago</Label>
                         </div>
-                        <div className="flex items-center gap-2 px-6 py-4 border rounded-md">
+                        <div className="flex items-center gap-2 rounded-md border px-6 py-4">
                             <RadioGroupItem
                                 value="PENDING"
                                 id="status-pending"

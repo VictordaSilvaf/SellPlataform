@@ -1,5 +1,6 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import Heading from '@/components/heading';
+import { SaleStatusBadge } from '@/components/sales/sale-status-badge';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -11,17 +12,10 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatMoney } from '@/lib/money';
 import { cancel, index, pay } from '@/routes/workspace/sales';
 import type { Sale } from '@/types';
-
-const statusLabel: Record<Sale['status'], string> = {
-    PAID: 'Pago',
-    PENDING: 'Pendente',
-    CANCELLED: 'Cancelado',
-};
 
 export default function SalesShow({
     sale,
@@ -38,7 +32,7 @@ export default function SalesShow({
     return (
         <>
             <Head title={`Venda #${sale.id}`} />
-            <div className="mx-auto flex max-w-3xl flex-col gap-6 p-4">
+            <div className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-8 md:px-8">
                 <div className="flex items-center justify-between">
                     <Heading title={`Venda #${sale.id}`} />
                     <Button variant="outline" asChild>
@@ -72,7 +66,7 @@ export default function SalesShow({
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                     <span>Pagamento:</span>
-                    <Badge>{statusLabel[sale.status]}</Badge>
+                    <SaleStatusBadge status={sale.status} />
                     {sale.status === 'PENDING' && canUpdatePayment && (
                         <Button
                             onClick={() =>

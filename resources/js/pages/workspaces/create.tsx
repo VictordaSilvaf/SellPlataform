@@ -13,7 +13,7 @@ export default function CreateWorkspace({ canCreate }: { canCreate: boolean }) {
     return (
         <>
             <Head title="Criar ambiente" />
-            <div className="mx-auto max-w-lg p-4">
+            <div className="mx-auto max-w-lg px-4 py-8 md:px-8">
                 <Heading
                     title="Criar ambiente"
                     description="Crie um espaço de trabalho para cadastrar produtos e registrar vendas."

@@ -11,7 +11,7 @@ export default function ProductsEdit({ product }: { product: Product }) {
     return (
         <>
             <Head title="Editar produto" />
-            <div className="mx-auto flex max-w-2xl flex-col gap-6 p-4">
+            <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-8 md:px-8">
                 <Heading title="Editar produto" />
                 <ProductForm
                     action={update.url({

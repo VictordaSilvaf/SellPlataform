@@ -3,7 +3,7 @@ import { ShoppingCart } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import Heading from '@/components/heading';
 import { Pagination } from '@/components/pagination';
-import { Badge } from '@/components/ui/badge';
+import { SaleStatusBadge } from '@/components/sales/sale-status-badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -17,12 +17,6 @@ import {
 import { formatMoney } from '@/lib/money';
 import { create, index, show } from '@/routes/workspace/sales';
 import type { Paginated, Sale } from '@/types';
-
-const statusLabel: Record<Sale['status'], string> = {
-    PAID: 'Pago',
-    PENDING: 'Pendente',
-    CANCELLED: 'Cancelado',
-};
 
 export default function SalesIndex({
     sales,
@@ -39,7 +33,7 @@ export default function SalesIndex({
     return (
         <>
             <Head title="Vendas" />
-            <div className="flex flex-col gap-6 p-4">
+            <div className="flex flex-col gap-6 px-4 py-8 md:px-8">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <Heading
                         title="Vendas"
@@ -72,7 +66,7 @@ export default function SalesIndex({
                     <select
                         name="status"
                         defaultValue={filters.status}
-                        className="h-9 rounded-md border bg-transparent px-2 text-sm"
+                        className="h-9 rounded-md border border-border bg-card px-3 text-sm"
                     >
                         <option value="">Todos</option>
                         <option value="PAID">Pago</option>
@@ -135,18 +129,9 @@ export default function SalesIndex({
                                             {formatMoney(sale.total)}
                                         </TableCell>
                                         <TableCell>
-                                            <Badge
-                                                variant={
-                                                    sale.status === 'PAID'
-                                                        ? 'default'
-                                                        : sale.status ===
-                                                            'PENDING'
-                                                          ? 'secondary'
-                                                          : 'outline'
-                                                }
-                                            >
-                                                {statusLabel[sale.status]}
-                                            </Badge>
+                                            <SaleStatusBadge
+                                                status={sale.status}
+                                            />
                                         </TableCell>
                                     </TableRow>
                                 ))}
