@@ -306,30 +306,50 @@ export default function MenusShow({
             return;
         }
 
-        const nextUnsectioned = [...unsectionedItems];
-        let nextSections = sections.map((section) => ({
-            ...section,
-            items: [...section.items],
-        }));
+        if (fromContainer === toContainer) {
+            if (fromIndex === toIndex) {
+                return;
+            }
 
-        if (fromContainer === UNSECTIONED) {
-            nextUnsectioned.splice(fromIndex, 1);
-        } else {
-            nextSections = nextSections.map((section) =>
-                String(section.id) === fromContainer
-                    ? {
-                          ...section,
-                          items: section.items.filter(
-                              (item) => item.product_id !== productId,
-                          ),
-                      }
-                    : section,
+            persistProducts(
+                toContainer === UNSECTIONED
+                    ? sections
+                    : sections.map((section) =>
+                          String(section.id) === toContainer
+                              ? {
+                                    ...section,
+                                    items: arrayMove(
+                                        section.items,
+                                        fromIndex,
+                                        toIndex,
+                                    ),
+                                }
+                              : section,
+                      ),
+                toContainer === UNSECTIONED
+                    ? arrayMove(unsectionedItems, fromIndex, toIndex)
+                    : unsectionedItems,
             );
+
+            return;
         }
 
-        if (fromContainer === toContainer && toIndex > fromIndex) {
-            toIndex -= 1;
-        }
+        const nextUnsectioned =
+            fromContainer === UNSECTIONED
+                ? unsectionedItems.filter(
+                      (item) => item.product_id !== productId,
+                  )
+                : [...unsectionedItems];
+        let nextSections = sections.map((section) =>
+            String(section.id) === fromContainer
+                ? {
+                      ...section,
+                      items: section.items.filter(
+                          (item) => item.product_id !== productId,
+                      ),
+                  }
+                : { ...section, items: [...section.items] },
+        );
 
         if (toContainer === UNSECTIONED) {
             nextUnsectioned.splice(toIndex, 0, {
