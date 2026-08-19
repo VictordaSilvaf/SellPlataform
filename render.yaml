@@ -1,0 +1,93 @@
+# Blueprint do Render — separado do deploy Oracle (deploy/oracle).
+# Dashboard: New → Blueprint → este repositório (arquivo render.yaml na raiz).
+
+databases:
+    - name: sellplataform-db
+      databaseName: sellplataform
+      user: sellplataform
+      plan: starter
+
+services:
+    - type: keyvalue
+      name: sellplataform-kv
+      plan: starter
+      ipAllowList: []
+
+    - type: web
+      name: sellplataform-web
+      runtime: docker
+      plan: starter
+      dockerfilePath: ./deploy/render/Dockerfile
+      dockerCommand: web
+      healthCheckPath: /up
+      envVars:
+          - fromGroup: sellplataform-app
+
+    - type: worker
+      name: sellplataform-queue
+      runtime: docker
+      plan: starter
+      dockerfilePath: ./deploy/render/Dockerfile
+      dockerCommand: queue
+      envVars:
+          - fromGroup: sellplataform-app
+
+    - type: cron
+      name: sellplataform-scheduler
+      runtime: docker
+      dockerfilePath: ./deploy/render/Dockerfile
+      schedule: '* * * * *'
+      dockerCommand: php artisan schedule:run
+      envVars:
+          - fromGroup: sellplataform-app
+
+envVarGroups:
+    - name: sellplataform-app
+      envVars:
+          - key: APP_NAME
+            value: SellPlataform
+          - key: APP_ENV
+            value: production
+          - key: APP_DEBUG
+            value: 'false'
+          - key: APP_KEY
+            sync: false
+          - key: APP_LOCALE
+            value: pt_BR
+          - key: LOG_CHANNEL
+            value: stderr
+          - key: LOG_LEVEL
+            value: error
+          - key: DB_CONNECTION
+            value: pgsql
+          - key: DB_SSLMODE
+            value: require
+          - key: DB_URL
+            fromDatabase:
+                name: sellplataform-db
+                property: connectionString
+          - key: REDIS_CLIENT
+            value: phpredis
+          - key: REDIS_URL
+            fromService:
+                type: keyvalue
+                name: sellplataform-kv
+                property: connectionString
+          - key: QUEUE_CONNECTION
+            value: redis
+          - key: CACHE_STORE
+            value: redis
+          - key: SESSION_DRIVER
+            value: redis
+          - key: SESSION_ENCRYPT
+            value: 'true'
+          - key: SESSION_SECURE_COOKIE
+            value: 'true'
+          - key: FILESYSTEM_DISK
+            value: local
+          - key: MAIL_MAILER
+            value: resend
+          - key: MAIL_FROM_ADDRESS
+            value: hello@victorsf.com
+          - key: RESEND_API_KEY
+            sync: false
