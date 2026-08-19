@@ -23,3 +23,13 @@ test('the application uses the custom logo mark', function () {
         ->assertOk()
         ->assertSee('/logo.png', false);
 });
+
+test('the apple touch icon is published at the canonical path', function () {
+    expect(file_exists(public_path('apple-touch-icon.png')))->toBeTrue();
+    expect(file_exists(public_path('apple-touch-icon copy.png')))->toBeFalse();
+
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertSee('/apple-touch-icon.png', false)
+        ->assertDontSee('apple-touch-icon copy', false);
+});
