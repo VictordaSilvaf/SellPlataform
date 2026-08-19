@@ -49,9 +49,12 @@ test('email verification messages are in portuguese and follow the brand', funct
     $html = (string) $mail->render();
 
     expect($mail->subject)->toBe('Confirme seu e-mail');
+    expect(config('mail.from.name'))->not->toContain('${');
     expect($html)
         ->toContain('Olá, João!')
         ->toContain('Confirmar e-mail')
+        ->toContain(config('app.name'))
+        ->not->toContain('${APP_NAME}')
         ->toContain('logo.png')
         ->toContain('#a67c62');
 });

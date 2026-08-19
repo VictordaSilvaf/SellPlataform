@@ -89,5 +89,7 @@ envVarGroups:
             value: resend
           - key: MAIL_FROM_ADDRESS
             value: hello@victorsf.com
+          - key: MAIL_FROM_NAME
+            value: SellPlataform
           - key: RESEND_API_KEY
             sync: false

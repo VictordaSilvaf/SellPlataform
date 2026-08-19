@@ -1,5 +1,7 @@
 <?php
 
+use App\Support\EnvName;
+
 return [
 
     /*
@@ -13,7 +15,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => EnvName::resolve(env('APP_NAME'), 'SellPlataform'),
 
     /*
     |--------------------------------------------------------------------------

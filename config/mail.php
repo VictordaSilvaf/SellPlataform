@@ -1,5 +1,7 @@
 <?php
 
+use App\Support\EnvName;
+
 return [
 
     /*
@@ -112,7 +114,10 @@ return [
 
     'from' => [
         'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
+        'name' => EnvName::resolve(
+            env('MAIL_FROM_NAME'),
+            EnvName::resolve(env('APP_NAME'), 'SellPlataform'),
+        ),
     ],
 
 ];

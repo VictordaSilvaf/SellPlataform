@@ -10,6 +10,7 @@ test('the render blueprint uses docker, redis queues, and postgres url', functio
         ->toContain('healthCheckPath: /up')
         ->toContain('key: DB_URL')
         ->toContain('key: QUEUE_CONNECTION')
+        ->toContain('key: MAIL_FROM_NAME')
         ->toContain('value: redis')
         ->toContain('sellplataform-kv');
 });
