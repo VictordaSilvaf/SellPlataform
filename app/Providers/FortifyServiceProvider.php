@@ -7,8 +7,11 @@ use App\Actions\Fortify\ResetUserPassword;
 use App\Http\Responses\LoginResponse;
 use App\Http\Responses\RegisterResponse;
 use App\Models\WorkspaceInvitation;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -37,6 +40,7 @@ class FortifyServiceProvider extends ServiceProvider
     {
         $this->configureActions();
         $this->configureViews();
+        $this->configureMail();
         $this->configureRateLimiting();
     }
 
@@ -101,6 +105,45 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::twoFactorChallengeView(fn () => Inertia::render('auth/two-factor-challenge'));
 
         Fortify::confirmPasswordView(fn () => Inertia::render('auth/confirm-password'));
+    }
+
+    /**
+     * Configure branded Portuguese mail for Fortify notifications.
+     */
+    private function configureMail(): void
+    {
+        $appName = config('app.name');
+
+        VerifyEmail::toMailUsing(function (object $notifiable, string $url) use ($appName): MailMessage {
+            $name = is_string($notifiable->name ?? null) ? $notifiable->name : '';
+
+            return (new MailMessage)
+                ->subject('Confirme seu e-mail')
+                ->greeting($name !== '' ? 'Olá, '.$name.'!' : 'Olá!')
+                ->line('Clique no botão para confirmar que este e-mail é seu e ativar sua conta no '.$appName.'.')
+                ->action('Confirmar e-mail', $url)
+                ->line('Se você não criou esta conta, ignore esta mensagem.')
+                ->salutation("Até mais,\n".$appName);
+        });
+
+        ResetPassword::toMailUsing(function (object $notifiable, string $token) use ($appName): MailMessage {
+            $url = url(route('password.reset', [
+                'token' => $token,
+                'email' => $notifiable->getEmailForPasswordReset(),
+            ], false));
+
+            $name = is_string($notifiable->name ?? null) ? $notifiable->name : '';
+            $minutes = (int) config('auth.passwords.'.config('auth.defaults.passwords').'.expire');
+
+            return (new MailMessage)
+                ->subject('Redefinir senha')
+                ->greeting($name !== '' ? 'Olá, '.$name.'!' : 'Olá!')
+                ->line('Recebemos um pedido para redefinir a senha da sua conta.')
+                ->action('Redefinir senha', $url)
+                ->line('Este link expira em '.$minutes.' minutos.')
+                ->line('Se você não pediu isso, ignore este e-mail.')
+                ->salutation("Até mais,\n".$appName);
+        });
     }
 
     /**

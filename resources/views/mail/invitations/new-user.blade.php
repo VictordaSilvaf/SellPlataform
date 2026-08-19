@@ -1,5 +1,16 @@
-Você foi convidado para participar de **{{ $workspaceName }}**.
+<x-mail::message>
+Olá!
 
-Crie sua conta para aceitar o convite.
+**{{ $inviterName }}** convidou você para o ambiente **{{ $workspaceName }}**.
 
-[Criar minha conta]({{ $url }})
+Crie sua conta para aceitar o convite e começar a usar o {{ config('app.name') }}.
+
+<x-mail::button :url="$url">
+Criar minha conta
+</x-mail::button>
+
+Se você não esperava este convite, pode ignorar este e-mail.
+
+Até mais,<br>
+{{ config('app.name') }}
+</x-mail::message>
