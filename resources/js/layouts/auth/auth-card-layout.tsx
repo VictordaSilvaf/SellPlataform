@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import type { PropsWithChildren } from 'react';
 import AppLogoIcon from '@/components/app-logo-icon';
 import {
@@ -19,6 +19,8 @@ export default function AuthCardLayout({
     title?: string;
     description?: string;
 }>) {
+    const { name: appName } = usePage().props;
+
     return (
         <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
             <div className="flex w-full max-w-md flex-col gap-6">
@@ -26,8 +28,8 @@ export default function AuthCardLayout({
                     href={home()}
                     className="flex items-center gap-2 self-center font-medium"
                 >
-                    <div className="flex h-9 w-9 items-center justify-center">
-                        <AppLogoIcon className="size-9 fill-current text-foreground" />
+                    <div className="flex size-9 items-center justify-center overflow-hidden rounded-md">
+                        <AppLogoIcon className="size-9" alt={appName} />
                     </div>
                 </Link>
 

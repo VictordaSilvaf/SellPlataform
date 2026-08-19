@@ -12,3 +12,14 @@ test('the design system defines light and dark pastel tokens', function () {
         ->toContain('--primary: #c09a7d')
         ->toContain("'Inter'");
 });
+
+test('the application uses the custom logo mark', function () {
+    expect(file_get_contents(resource_path('js/components/app-logo-icon.tsx')))
+        ->toContain('/logo.png')
+        ->and(file_exists(public_path('logo.png')))
+        ->toBeTrue();
+
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertSee('/logo.png', false);
+});
