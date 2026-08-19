@@ -7,8 +7,10 @@ type PlanProps = {
         name: string;
         max_workspaces: number;
         max_members: number;
+        max_menus: number | null;
         owned_workspaces: number;
         current_members: number;
+        current_menus: number;
     };
 };
 
@@ -33,6 +35,12 @@ export default function WorkspacePlan({ plan }: PlanProps) {
                         <p>
                             Membros neste ambiente: {plan.current_members} /{' '}
                             {plan.max_members}
+                        </p>
+                        <p>
+                            Cardápios neste ambiente: {plan.current_menus} /{' '}
+                            {plan.max_menus === null
+                                ? 'Ilimitado'
+                                : plan.max_menus}
                         </p>
                     </CardContent>
                 </Card>

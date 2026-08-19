@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
@@ -55,6 +56,16 @@ class Product extends Model
     public function saleItems(): HasMany
     {
         return $this->hasMany(SaleItem::class);
+    }
+
+    /**
+     * @return BelongsToMany<Menu, $this>
+     */
+    public function menus(): BelongsToMany
+    {
+        return $this->belongsToMany(Menu::class, 'menu_products')
+            ->withPivot(['position', 'active', 'unavailable_reason'])
+            ->withTimestamps();
     }
 
     /**

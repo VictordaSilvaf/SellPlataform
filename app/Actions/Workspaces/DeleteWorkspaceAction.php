@@ -15,6 +15,10 @@ class DeleteWorkspaceAction
             });
 
             $workspace->sales()->delete();
+            $workspace->menus()->each(function ($menu): void {
+                $menu->menuProducts()->delete();
+            });
+            $workspace->menus()->delete();
             $workspace->products()->delete();
             $workspace->invitations()->delete();
             $workspace->customers()->delete();

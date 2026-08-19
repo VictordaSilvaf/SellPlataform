@@ -15,10 +15,11 @@ use Illuminate\Support\Carbon;
  * @property string $name
  * @property int $max_workspaces
  * @property int $max_members
+ * @property int|null $max_menus
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'max_workspaces', 'max_members'])]
+#[Fillable(['name', 'max_workspaces', 'max_members', 'max_menus'])]
 class Plan extends Model
 {
     /** @use HasFactory<PlanFactory> */
@@ -32,6 +33,7 @@ class Plan extends Model
         return [
             'max_workspaces' => 'integer',
             'max_members' => 'integer',
+            'max_menus' => 'integer',
         ];
     }
 
@@ -46,5 +48,10 @@ class Plan extends Model
     public function isFree(): bool
     {
         return $this->name === PlanType::Free->value || $this->name === 'Free';
+    }
+
+    public function allowsAnotherMenu(int $currentCount): bool
+    {
+        return $this->max_menus === null || $currentCount < $this->max_menus;
     }
 }

@@ -11,6 +11,28 @@ export type WorkspaceRole = 'OWNER' | 'ADMIN' | 'MEMBER';
 
 export type SaleStatus = 'PAID' | 'PENDING' | 'CANCELLED';
 
+export type MenuStatus = 'DRAFT' | 'ACTIVE' | 'INACTIVE';
+
+export type Menu = {
+    id: number;
+    name: string;
+    slug: string;
+    status: MenuStatus;
+    products_count: number;
+    public_url: string;
+};
+
+export type MenuProductItem = {
+    id: number;
+    product_id: number;
+    name: string;
+    description: string | null;
+    price: number;
+    product_active: boolean;
+    active: boolean;
+    position: number;
+};
+
 export type Product = {
     id: number;
     workspace_id: number;

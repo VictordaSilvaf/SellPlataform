@@ -76,6 +76,14 @@ class Workspace extends Model
     }
 
     /**
+     * @return HasMany<Menu, $this>
+     */
+    public function menus(): HasMany
+    {
+        return $this->hasMany(Menu::class);
+    }
+
+    /**
      * @return HasMany<Sale, $this>
      */
     public function sales(): HasMany

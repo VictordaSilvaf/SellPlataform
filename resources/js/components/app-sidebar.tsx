@@ -1,5 +1,11 @@
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, Package, Settings, ShoppingCart } from 'lucide-react';
+import {
+    LayoutGrid,
+    Package,
+    Settings,
+    ShoppingCart,
+    UtensilsCrossed,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -17,6 +23,7 @@ import {
 import { edit as editProfile } from '@/routes/profile';
 import { dashboard } from '@/routes/workspace';
 import { index as members } from '@/routes/workspace/members';
+import { index as menus } from '@/routes/workspace/menus';
 import { show as plan } from '@/routes/workspace/plan';
 import { index as products } from '@/routes/workspace/products';
 import { index as sales } from '@/routes/workspace/sales';
@@ -38,6 +45,11 @@ export function AppSidebar() {
                   title: 'Produtos',
                   href: products(workspace.slug),
                   icon: Package,
+              },
+              {
+                  title: 'Cardápios',
+                  href: menus(workspace.slug),
+                  icon: UtensilsCrossed,
               },
               {
                   title: 'Vendas',

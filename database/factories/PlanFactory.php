@@ -19,6 +19,7 @@ class PlanFactory extends Factory
             'name' => 'Free',
             'max_workspaces' => 3,
             'max_members' => 3,
+            'max_menus' => 1,
         ];
     }
 }

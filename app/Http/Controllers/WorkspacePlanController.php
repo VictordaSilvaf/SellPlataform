@@ -20,8 +20,10 @@ class WorkspacePlanController extends Controller
                 'name' => $owner->plan->name,
                 'max_workspaces' => $owner->plan->max_workspaces,
                 'max_members' => $owner->plan->max_members,
+                'max_menus' => $owner->plan->max_menus,
                 'owned_workspaces' => $owner->ownedWorkspaceCount(),
                 'current_members' => $workspace->occupiedMemberSlots(),
+                'current_menus' => $workspace->menus()->count(),
             ],
         ]);
     }

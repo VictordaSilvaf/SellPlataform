@@ -2,8 +2,11 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeRedirectController;
+use App\Http\Controllers\MenuController;
+use App\Http\Controllers\MenuProductController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PublicMenuController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\WorkspaceController;
 use App\Http\Controllers\WorkspaceMemberController;
@@ -11,6 +14,8 @@ use App\Http\Controllers\WorkspacePlanController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
+
+Route::get('cardapio/{menu:slug}', PublicMenuController::class)->name('menus.public');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', HomeRedirectController::class)->name('dashboard');
@@ -35,6 +40,17 @@ Route::middleware(['auth', 'verified', 'workspace.member'])
         Route::get('products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
         Route::put('products/{product}', [ProductController::class, 'update'])->name('products.update');
         Route::patch('products/{product}/toggle', [ProductController::class, 'toggle'])->name('products.toggle');
+
+        Route::get('menus', [MenuController::class, 'index'])->name('menus.index');
+        Route::get('menus/create', [MenuController::class, 'create'])->name('menus.create');
+        Route::post('menus', [MenuController::class, 'store'])->name('menus.store');
+        Route::get('menus/{menu}', [MenuController::class, 'show'])->name('menus.show');
+        Route::put('menus/{menu}', [MenuController::class, 'update'])->name('menus.update');
+        Route::delete('menus/{menu}', [MenuController::class, 'destroy'])->name('menus.destroy');
+        Route::post('menus/{menu}/products', [MenuProductController::class, 'store'])->name('menus.products.store');
+        Route::patch('menus/{menu}/products/order', [MenuProductController::class, 'order'])->name('menus.products.order');
+        Route::delete('menus/{menu}/products/{product}', [MenuProductController::class, 'destroy'])->name('menus.products.destroy');
+        Route::patch('menus/{menu}/products/{product}/toggle', [MenuProductController::class, 'toggle'])->name('menus.products.toggle');
 
         Route::get('sales', [SaleController::class, 'index'])->name('sales.index');
         Route::get('sales/create', [SaleController::class, 'create'])->name('sales.create');
