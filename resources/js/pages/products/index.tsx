@@ -99,7 +99,24 @@ export default function ProductsIndex({
                             <TableBody>
                                 {products.data.map((product) => (
                                     <TableRow key={product.id}>
-                                        <TableCell>{product.name}</TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-3">
+                                                {product.image_url ? (
+                                                    <img
+                                                        src={product.image_url}
+                                                        alt=""
+                                                        className="size-10 shrink-0 rounded-md object-cover"
+                                                    />
+                                                ) : (
+                                                    <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                                                        <Package className="size-4" />
+                                                    </span>
+                                                )}
+                                                <span className="min-w-0">
+                                                    {product.name}
+                                                </span>
+                                            </div>
+                                        </TableCell>
                                         <TableCell>
                                             {formatMoney(product.price)}
                                         </TableCell>

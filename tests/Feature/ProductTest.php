@@ -125,6 +125,22 @@ test('a member cannot create products', function () {
         ->assertForbidden();
 });
 
+test('the product list includes the image url', function () {
+    [$user, $workspace] = userWithWorkspace();
+    $product = Product::factory()->create(['workspace_id' => $workspace->id]);
+    $product->update([
+        'image_path' => ImageVariant::ProductMain->pathFor($product->id),
+        'image_version' => 1,
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('workspace.products.index', $workspace))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('products/index')
+            ->where('products.data.0.image_url', $product->fresh()->imageUrl()));
+});
+
 test('inactive products are omitted from the sale form', function () {
     [$user, $workspace] = userWithWorkspace();
     $active = Product::factory()->create(['workspace_id' => $workspace->id, 'name' => 'Ativo']);
