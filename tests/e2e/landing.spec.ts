@@ -5,12 +5,12 @@ test('a landing explica o serviço e leva ao cadastro', async ({ page }) => {
 
     await expect(
         page.getByRole('heading', {
-            name: 'A venda do balcão, registrada de verdade.',
+            name: 'Seu cardápio na mão do cliente. Suas vendas no controle.',
         }),
     ).toBeVisible();
-    await expect(page.getByText('Padaria da Rua')).toBeVisible();
+    await expect(page.getByText('Café da Esquina')).toBeVisible();
     await expect(
-        page.getByRole('heading', { name: 'Abra um ambiente' }),
+        page.getByRole('heading', { name: 'Monte o cardápio' }),
     ).toBeVisible();
 
     await page

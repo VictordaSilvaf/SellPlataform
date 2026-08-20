@@ -1,6 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import AppLogoIcon from '@/components/app-logo-icon';
-import { SaleLedgerPreview } from '@/components/landing/sale-ledger-preview';
+import { MenuPreview } from '@/components/landing/menu-preview';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { dashboard, login, register } from '@/routes';
@@ -11,12 +11,12 @@ const steps = [
         body: 'Cada loja, banca ou projeto fica no seu espaço. No plano Free você cria até três ambientes próprios.',
     },
     {
-        title: 'Cadastre o que vende',
-        body: 'Preço em reais, ativo ou pausado. A equipe usa o mesmo catálogo na hora de registrar a venda.',
+        title: 'Monte o cardápio',
+        body: 'Cadastre produtos com foto e preço, organize em seções e publique com link ou QR para o cliente.',
     },
     {
-        title: 'Lance e acompanhe',
-        body: 'Venda pendente, concluída ou cancelada. O dashboard mostra o dia, o mês e o que ainda está em aberto.',
+        title: 'Venda e acompanhe',
+        body: 'Registre vendas no balcão e acompanhe pendências, recebidos e totais do dia no dashboard.',
     },
 ];
 
@@ -27,10 +27,10 @@ export default function Welcome() {
 
     return (
         <>
-            <Head title="Vendas no mesmo lugar">
+            <Head title="Cardápio digital e vendas no mesmo lugar">
                 <meta
                     name="description"
-                    content={`${name} organiza produtos, vendas e equipe em ambientes de trabalho. Comece no plano Free.`}
+                    content={`${name} monta cardápios online, organiza produtos e registra vendas por ambiente. Comece no plano Free.`}
                 />
             </Head>
 
@@ -72,13 +72,14 @@ export default function Welcome() {
                     <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:py-24">
                         <div className="flex flex-col gap-6">
                             <h1 className="max-w-[18ch] text-[clamp(2.25rem,5vw,3.75rem)] leading-[1.1] font-semibold tracking-[-0.03em] text-pretty">
-                                A venda do balcão, registrada de verdade.
+                                Seu cardápio na mão do cliente. Suas vendas no
+                                controle.
                             </h1>
                             <p className="max-w-[42ch] text-lg leading-relaxed text-pretty text-muted-foreground">
-                                {name} é para quem vende no dia a dia e ainda
-                                anota no caderno ou na planilha. Catálogo,
-                                vendas e equipe no mesmo ambiente — sem misturar
-                                lojas.
+                                {name} é para quem vende no dia a dia: monte o
+                                cardápio com fotos e preços, compartilhe o link
+                                ou QR e registre as vendas no mesmo ambiente —
+                                sem misturar lojas.
                             </p>
                             <div className="flex flex-wrap items-center gap-3">
                                 <Button size="lg" asChild>
@@ -95,11 +96,11 @@ export default function Welcome() {
                                 )}
                             </div>
                             <p className="text-sm text-muted-foreground">
-                                Plano Free: 3 ambientes e 3 pessoas por
-                                ambiente, incluindo você.
+                                Plano Free: 3 ambientes, 3 pessoas e 1 cardápio
+                                por ambiente.
                             </p>
                         </div>
-                        <SaleLedgerPreview />
+                        <MenuPreview />
                     </section>
 
                     <section className="bg-primary text-primary-foreground">
@@ -139,11 +140,11 @@ export default function Welcome() {
                             <dl className="grid gap-6 sm:grid-cols-2">
                                 <div className="rounded-xl bg-card p-5 ring-1 ring-border">
                                     <dt className="text-sm text-muted-foreground">
-                                        Produtos
+                                        Cardápios
                                     </dt>
                                     <dd className="mt-2 text-lg font-medium">
-                                        Preço em reais. Pause o item quando não
-                                        quiser mais vender.
+                                        Link público e QR com fotos, preços e
+                                        seções para o cliente.
                                     </dd>
                                 </div>
                                 <div className="rounded-xl bg-card p-5 ring-1 ring-border">
@@ -151,8 +152,8 @@ export default function Welcome() {
                                         Vendas
                                     </dt>
                                     <dd className="mt-2 text-lg font-medium">
-                                        Várias unidades, total conferido, status
-                                        que você marca.
+                                        Pendente, paga ou cancelada, com total do
+                                        dia no dashboard.
                                     </dd>
                                 </div>
                             </dl>
@@ -163,7 +164,7 @@ export default function Welcome() {
                         <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-8 px-4 py-16 sm:px-6 lg:flex-row lg:items-center">
                             <div className="flex max-w-xl flex-col gap-3">
                                 <h2 className="text-3xl font-semibold tracking-[-0.02em] text-balance">
-                                    Comece com o que você já vende amanhã.
+                                    Comece com seu cardápio amanhã.
                                 </h2>
                                 <p className="leading-relaxed text-muted-foreground">
                                     Cadastro rápido. Primeiro ambiente na hora.
@@ -180,7 +181,7 @@ export default function Welcome() {
                 <footer className="border-t border-border">
                     <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-6 text-sm text-muted-foreground sm:px-6">
                         <span>{name}</span>
-                        <span>Feito para o balcão, não para o pitch.</span>
+                        <span>Feito para quem vende de verdade.</span>
                     </div>
                 </footer>
             </div>
