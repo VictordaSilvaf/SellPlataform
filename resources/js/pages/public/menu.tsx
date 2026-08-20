@@ -96,10 +96,9 @@ export default function PublicMenu({
                             </div>
                         ) : (
                             <div className="aspect-video overflow-hidden bg-primary-soft">
-                                <Parallax
-                                    speed={0.16}
-                                    className="size-full bg-primary/20 motion-safe:animate-menu-cover"
-                                />
+                                <Parallax speed={0.16} className="size-full">
+                                    <div className="size-full bg-primary/20 motion-safe:animate-menu-cover" />
+                                </Parallax>
                             </div>
                         )}
                         <div className="absolute inset-0 flex flex-col items-center justify-end gap-2 bg-linear-to-t from-background via-background/40 to-transparent px-4 pb-6 text-center">
