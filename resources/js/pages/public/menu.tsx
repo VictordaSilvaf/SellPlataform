@@ -1,10 +1,9 @@
 import { Head, usePage } from '@inertiajs/react';
-import { useEffect, useRef, useState } from 'react';
-import type { ReactNode } from 'react';
 import AppLogoIcon from '@/components/app-logo-icon';
+import { Parallax } from '@/components/landing/parallax';
+import { Reveal } from '@/components/landing/reveal';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { formatMoney } from '@/lib/money';
-import { cn } from '@/lib/utils';
 
 type PublicProduct = {
     name: string;
@@ -19,71 +18,15 @@ type PublicSection = {
     products: PublicProduct[];
 };
 
-function Reveal({
-    children,
-    delay = 0,
-    observe = false,
-}: {
-    children: ReactNode;
-    delay?: number;
-    observe?: boolean;
-}) {
-    const ref = useRef<HTMLDivElement>(null);
-    const [visible, setVisible] = useState(!observe);
-
-    useEffect(() => {
-        if (!observe) {
-            return;
-        }
-
-        const node = ref.current;
-
-        if (!node) {
-            return;
-        }
-
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry?.isIntersecting) {
-                    setVisible(true);
-                    observer.disconnect();
-                }
-            },
-            { threshold: 0.12 },
-        );
-
-        observer.observe(node);
-
-        return () => observer.disconnect();
-    }, [observe]);
-
-    return (
-        <div
-            ref={ref}
-            className={cn(
-                'motion-safe:transition-[opacity,transform] motion-safe:duration-300',
-                visible
-                    ? 'translate-y-0 opacity-100'
-                    : 'motion-safe:translate-y-2 motion-safe:opacity-0',
-            )}
-            style={{
-                transitionDelay: visible ? `${delay}ms` : undefined,
-            }}
-        >
-            {children}
-        </div>
-    );
-}
-
 function ProductCard({ product }: { product: PublicProduct }) {
     return (
-        <article className="overflow-hidden rounded-xl bg-card">
+        <article className="overflow-hidden rounded-xl bg-card shadow-card">
             {product.image_url && (
                 <div className="aspect-[4/3] overflow-hidden">
                     <img
                         src={product.image_url}
                         alt=""
-                        className="size-full object-cover"
+                        className="size-full object-cover motion-safe:transition-transform motion-safe:duration-700 motion-safe:ease-out group-hover:scale-105"
                     />
                 </div>
             )}
@@ -122,8 +65,7 @@ export default function PublicMenu({
     sections: PublicSection[];
 }) {
     const { name } = usePage().props;
-    const empty =
-        unsectioned.length === 0 && sections.length === 0;
+    const empty = unsectioned.length === 0 && sections.length === 0;
 
     return (
         <>
@@ -141,64 +83,68 @@ export default function PublicMenu({
                     <ThemeToggle />
                 </header>
                 <main className="mx-auto flex max-w-lg flex-col pb-16">
-                    <Reveal>
-                        <div className="relative overflow-hidden">
-                            {workspace.cover_url ? (
-                                <div className="aspect-video">
+                    <div className="relative overflow-hidden">
+                        {workspace.cover_url ? (
+                            <div className="aspect-video overflow-hidden">
+                                <Parallax speed={0.22} className="h-full">
                                     <img
                                         src={workspace.cover_url}
                                         alt=""
-                                        className="size-full object-cover"
+                                        className="size-full object-cover motion-safe:animate-menu-cover"
                                     />
-                                </div>
-                            ) : (
-                                <div className="aspect-video bg-primary-soft" />
-                            )}
-                            <div className="absolute inset-0 flex flex-col items-center justify-end gap-2 bg-linear-to-t from-background via-background/40 to-transparent px-4 pb-6 text-center">
-                                <span className="flex size-16 overflow-hidden rounded-xl bg-background">
-                                    {workspace.logo_url ? (
-                                        <img
-                                            src={workspace.logo_url}
-                                            alt=""
-                                            className="size-16 object-cover"
-                                        />
-                                    ) : (
-                                        <AppLogoIcon
-                                            className="size-16"
-                                            alt=""
-                                        />
-                                    )}
-                                </span>
-                                <p className="text-sm font-medium">
-                                    {workspace.name}
-                                </p>
-                                <h1 className="text-2xl font-semibold tracking-tight">
-                                    {available
-                                        ? menu.name
-                                        : 'Cardápio indisponível'}
-                                </h1>
-                                {available ? (
-                                    menu.description && (
-                                        <p className="max-w-[36ch] text-pretty text-muted-foreground">
-                                            {menu.description}
-                                        </p>
-                                    )
-                                ) : (
-                                    <p className="max-w-[36ch] text-pretty text-muted-foreground">
-                                        Este cardápio não está disponível no
-                                        momento.
-                                    </p>
-                                )}
+                                </Parallax>
                             </div>
+                        ) : (
+                            <div className="aspect-video overflow-hidden bg-primary-soft">
+                                <Parallax
+                                    speed={0.16}
+                                    className="size-full bg-primary/20 motion-safe:animate-menu-cover"
+                                />
+                            </div>
+                        )}
+                        <div className="absolute inset-0 flex flex-col items-center justify-end gap-2 bg-linear-to-t from-background via-background/40 to-transparent px-4 pb-6 text-center">
+                            <span className="flex size-16 overflow-hidden rounded-xl bg-background motion-safe:animate-menu-rise">
+                                {workspace.logo_url ? (
+                                    <img
+                                        src={workspace.logo_url}
+                                        alt=""
+                                        className="size-16 object-cover"
+                                    />
+                                ) : (
+                                    <AppLogoIcon className="size-16" alt="" />
+                                )}
+                            </span>
+                            <p className="text-sm font-medium motion-safe:animate-menu-rise motion-safe:[animation-delay:90ms]">
+                                {workspace.name}
+                            </p>
+                            <h1 className="text-2xl font-semibold tracking-tight motion-safe:animate-menu-rise motion-safe:[animation-delay:160ms]">
+                                {available
+                                    ? menu.name
+                                    : 'Cardápio indisponível'}
+                            </h1>
+                            {available ? (
+                                menu.description && (
+                                    <p className="max-w-[36ch] text-pretty text-muted-foreground motion-safe:animate-menu-rise motion-safe:[animation-delay:240ms]">
+                                        {menu.description}
+                                    </p>
+                                )
+                            ) : (
+                                <p className="max-w-[36ch] text-pretty text-muted-foreground motion-safe:animate-menu-rise motion-safe:[animation-delay:240ms]">
+                                    Este cardápio não está disponível no
+                                    momento.
+                                </p>
+                            )}
                         </div>
-                    </Reveal>
+                    </div>
 
                     {available && (
                         <div className="flex flex-col gap-8 px-4 pt-8">
                             {empty && (
-                                <p className="rounded-xl bg-card px-4 py-6 text-center text-sm text-muted-foreground">
-                                    Nenhum produto disponível agora.
-                                </p>
+                                <Reveal>
+                                    <p className="rounded-xl bg-card px-4 py-6 text-center text-sm text-muted-foreground">
+                                        Nenhum produto disponível agora.
+                                    </p>
+                                </Reveal>
                             )}
                             {unsectioned.length > 0 && (
                                 <ul className="flex flex-col gap-3">
@@ -207,16 +153,18 @@ export default function PublicMenu({
                                             key={`${product.name}-${product.price}-${index}`}
                                         >
                                             <Reveal
+                                                from="scale"
                                                 delay={
                                                     index < 4
                                                         ? 80 * (index + 1)
                                                         : 0
                                                 }
-                                                observe={index >= 4}
                                             >
-                                                <ProductCard
-                                                    product={product}
-                                                />
+                                                <div className="group">
+                                                    <ProductCard
+                                                        product={product}
+                                                    />
+                                                </div>
                                             </Reveal>
                                         </li>
                                     ))}
@@ -227,10 +175,7 @@ export default function PublicMenu({
                                     key={`${section.name}-${sectionIndex}`}
                                     className="flex flex-col gap-3"
                                 >
-                                    <Reveal
-                                        delay={80 * (sectionIndex + 1)}
-                                        observe={sectionIndex >= 3}
-                                    >
+                                    <Reveal delay={40}>
                                         <h2 className="text-xs font-semibold tracking-[0.16em] text-muted-foreground uppercase">
                                             {section.name}
                                         </h2>
@@ -247,17 +192,21 @@ export default function PublicMenu({
                                                     key={`${section.name}-${product.name}-${index}`}
                                                 >
                                                     <Reveal
+                                                        from="scale"
                                                         delay={
                                                             index < 3
-                                                                ? 60 *
+                                                                ? 70 *
                                                                   (index + 1)
                                                                 : 0
                                                         }
-                                                        observe={index >= 3}
                                                     >
-                                                        <ProductCard
-                                                            product={product}
-                                                        />
+                                                        <div className="group">
+                                                            <ProductCard
+                                                                product={
+                                                                    product
+                                                                }
+                                                            />
+                                                        </div>
                                                     </Reveal>
                                                 </li>
                                             ),

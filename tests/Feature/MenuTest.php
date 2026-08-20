@@ -445,3 +445,14 @@ test('an inactive public menu shows the unavailable page', function () {
             ->has('unsectioned', 0)
             ->has('sections', 0));
 });
+
+test('the public menu page animates on open and scroll', function () {
+    $page = file_get_contents(resource_path('js/pages/public/menu.tsx'));
+
+    expect($page)
+        ->toContain('Reveal')
+        ->toContain('Parallax')
+        ->toContain('animate-menu-cover')
+        ->toContain('animate-menu-rise')
+        ->toContain('from="scale"');
+});
