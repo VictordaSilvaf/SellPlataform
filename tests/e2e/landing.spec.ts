@@ -8,7 +8,10 @@ test('a landing explica o serviço e leva ao cadastro', async ({ page }) => {
             name: 'Seu cardápio na mão do cliente. Suas vendas no controle.',
         }),
     ).toBeVisible();
-    await expect(page.getByText('Café da Esquina')).toBeVisible();
+    await expect(page.getByText('Café da Esquina').first()).toBeVisible();
+    await page
+        .getByRole('heading', { name: 'Monte o cardápio' })
+        .scrollIntoViewIfNeeded();
     await expect(
         page.getByRole('heading', { name: 'Monte o cardápio' }),
     ).toBeVisible();
