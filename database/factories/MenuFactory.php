@@ -26,6 +26,7 @@ class MenuFactory extends Factory
             'slug' => Str::slug($name).'-'.fake()->unique()->numerify('###'),
             'description' => fake()->sentence(),
             'status' => MenuStatus::Active,
+            'banner_color' => '#141414',
         ];
     }
 

@@ -21,6 +21,7 @@ import { GripVertical, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import Heading from '@/components/heading';
+import { ImageUploadField } from '@/components/image-upload-field';
 import InputError from '@/components/input-error';
 import { MenuQrDialog } from '@/components/menus/menu-qr-dialog';
 import {
@@ -52,6 +53,10 @@ import { formatMoney } from '@/lib/money';
 import { cn } from '@/lib/utils';
 import { destroy, index, update } from '@/routes/workspace/menus';
 import {
+    destroy as destroyBanner,
+    store as storeBanner,
+} from '@/routes/workspace/menus/banner';
+import {
     destroy as removeProduct,
     order,
     store as addProducts,
@@ -64,11 +69,16 @@ import {
     toggle as toggleSection,
     update as updateSection,
 } from '@/routes/workspace/menus/sections';
+import {
+    destroy as destroySectionImage,
+    store as storeSectionImage,
+} from '@/routes/workspace/menus/sections/image';
 import type {
     MenuProductItem,
     MenuSection,
     MenuStatus,
     Product,
+    SectionImageSide,
 } from '@/types';
 
 const UNSECTIONED = 'unsectioned';
@@ -80,14 +90,41 @@ type MenuShowProps = {
         slug: string;
         description: string | null;
         status: MenuStatus;
+        banner_url: string | null;
+        banner_color: string;
         public_url: string;
     };
     sections: MenuSection[];
     unsectionedItems: MenuProductItem[];
     availableProducts: Pick<Product, 'id' | 'name' | 'price' | 'active'>[];
     statuses: { value: MenuStatus; label: string }[];
+    imageSides: { value: SectionImageSide; label: string }[];
     canManage: boolean;
 };
+
+function sectionPayload(
+    section: Pick<
+        MenuSection,
+        'name' | 'description' | 'background_color' | 'image_side'
+    >,
+    overrides: Partial<{
+        name: string;
+        description: string | null;
+        background_color: string;
+        image_side: SectionImageSide;
+    }> = {},
+) {
+    return {
+        name: overrides.name ?? section.name,
+        description:
+            overrides.description !== undefined
+                ? overrides.description
+                : section.description,
+        background_color:
+            overrides.background_color ?? section.background_color,
+        image_side: overrides.image_side ?? section.image_side,
+    };
+}
 
 function productDragId(productId: number): string {
     return `p-${productId}`;
@@ -123,6 +160,7 @@ export default function MenusShow({
     unsectionedItems,
     availableProducts,
     statuses,
+    imageSides,
     canManage,
 }: MenuShowProps) {
     const { currentWorkspace } = usePage().props;
@@ -464,6 +502,7 @@ export default function MenusShow({
                                     name: menu.name,
                                     description: menu.description,
                                     status: 'ACTIVE',
+                                    banner_color: menu.banner_color,
                                 },
                                 { preserveScroll: true },
                             )
@@ -501,6 +540,37 @@ export default function MenusShow({
                                         defaultValue={menu.description ?? ''}
                                     />
                                     <InputError message={errors.description} />
+                                </div>
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <ImageUploadField
+                                        label="Banner (opcional)"
+                                        imageUrl={menu.banner_url}
+                                        storeUrl={storeBanner.url(params)}
+                                        destroyUrl={destroyBanner.url(params)}
+                                        aspectClassName="aspect-video"
+                                        error={errors.image}
+                                    />
+                                    <div className="grid gap-2 self-start">
+                                        <Label htmlFor="banner_color">
+                                            Cor do banner
+                                        </Label>
+                                        <div className="flex items-center gap-3">
+                                            <Input
+                                                id="banner_color"
+                                                name="banner_color"
+                                                type="color"
+                                                defaultValue={menu.banner_color}
+                                                className="h-10 w-14 cursor-pointer p-1"
+                                            />
+                                            <p className="text-sm text-muted-foreground">
+                                                Sem imagem, o nome do cardápio
+                                                aparece sobre esta cor.
+                                            </p>
+                                        </div>
+                                        <InputError
+                                            message={errors.banner_color}
+                                        />
+                                    </div>
                                 </div>
                                 <div className="grid gap-2">
                                     <Label htmlFor="status">Status</Label>
@@ -663,6 +733,7 @@ export default function MenusShow({
                                         sortable={canManage}
                                         canManage={canManage}
                                         params={params}
+                                        imageSides={imageSides}
                                         onToggle={toggleAvailability}
                                         onRemoveProduct={(item) =>
                                             router.delete(
@@ -852,6 +923,7 @@ function SortableSection({
     sortable,
     canManage,
     params,
+    imageSides,
     onToggle,
     onRemoveProduct,
     onAdd,
@@ -860,6 +932,7 @@ function SortableSection({
     sortable: boolean;
     canManage: boolean;
     params: { workspace: string; menu: number };
+    imageSides: { value: SectionImageSide; label: string }[];
     onToggle: (item: MenuProductItem) => void;
     onRemoveProduct: (item: MenuProductItem) => void;
     onAdd: () => void;
@@ -872,6 +945,23 @@ function SortableSection({
         transition,
         isDragging,
     } = useSortable({ id: sectionDragId(section.id), disabled: !sortable });
+
+    const sectionParams = { ...params, section: section.id };
+
+    function saveSection(
+        overrides: Partial<{
+            name: string;
+            description: string | null;
+            background_color: string;
+            image_side: SectionImageSide;
+        }>,
+    ): void {
+        router.put(
+            updateSection.url(sectionParams),
+            sectionPayload(section, overrides),
+            { preserveScroll: true },
+        );
+    }
 
     return (
         <div
@@ -907,17 +997,7 @@ function SortableSection({
                                 return;
                             }
 
-                            router.put(
-                                updateSection.url({
-                                    ...params,
-                                    section: section.id,
-                                }),
-                                {
-                                    name: event.target.value,
-                                    description: section.description,
-                                },
-                                { preserveScroll: true },
-                            );
+                            saveSection({ name: event.target.value });
                         }}
                     />
                 ) : (
@@ -929,10 +1009,7 @@ function SortableSection({
                             checked={section.active}
                             onCheckedChange={(checked) =>
                                 router.patch(
-                                    toggleSection.url({
-                                        ...params,
-                                        section: section.id,
-                                    }),
+                                    toggleSection.url(sectionParams),
                                     { active: checked },
                                     { preserveScroll: true },
                                 )
@@ -955,10 +1032,7 @@ function SortableSection({
                             aria-label="Excluir sessão"
                             onClick={() =>
                                 router.delete(
-                                    destroySection.url({
-                                        ...params,
-                                        section: section.id,
-                                    }),
+                                    destroySection.url(sectionParams),
                                     { preserveScroll: true },
                                 )
                             }
@@ -984,17 +1058,7 @@ function SortableSection({
                             return;
                         }
 
-                        router.put(
-                            updateSection.url({
-                                ...params,
-                                section: section.id,
-                            }),
-                            {
-                                name: section.name,
-                                description: next,
-                            },
-                            { preserveScroll: true },
-                        );
+                        saveSection({ description: next });
                     }}
                 />
             ) : (
@@ -1003,6 +1067,64 @@ function SortableSection({
                         {section.description}
                     </p>
                 )
+            )}
+            {canManage && (
+                <div className="mb-4 grid gap-4 sm:grid-cols-[140px_1fr]">
+                    <ImageUploadField
+                        label="Imagem lateral"
+                        imageUrl={section.image_url}
+                        storeUrl={storeSectionImage.url(sectionParams)}
+                        destroyUrl={destroySectionImage.url(sectionParams)}
+                        aspectClassName="aspect-square"
+                    />
+                    <div className="grid gap-3 self-start sm:grid-cols-2">
+                        <div className="grid gap-2">
+                            <Label htmlFor={`section-color-${section.id}`}>
+                                Cor da sessão
+                            </Label>
+                            <Input
+                                id={`section-color-${section.id}`}
+                                type="color"
+                                defaultValue={section.background_color}
+                                className="h-10 w-14 cursor-pointer p-1"
+                                onBlur={(event) => {
+                                    if (
+                                        event.target.value.toUpperCase() ===
+                                        section.background_color.toUpperCase()
+                                    ) {
+                                        return;
+                                    }
+
+                                    saveSection({
+                                        background_color: event.target.value,
+                                    });
+                                }}
+                            />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor={`section-side-${section.id}`}>
+                                Lado da imagem
+                            </Label>
+                            <select
+                                id={`section-side-${section.id}`}
+                                defaultValue={section.image_side}
+                                className="h-9 rounded-md border bg-transparent px-2 text-sm"
+                                onChange={(event) =>
+                                    saveSection({
+                                        image_side: event.target
+                                            .value as SectionImageSide,
+                                    })
+                                }
+                            >
+                                {imageSides.map((side) => (
+                                    <option key={side.value} value={side.value}>
+                                        {side.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                </div>
             )}
             <ProductGroup
                 id={String(section.id)}

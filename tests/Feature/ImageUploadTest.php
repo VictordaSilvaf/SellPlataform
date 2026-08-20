@@ -1,6 +1,8 @@
 <?php
 
 use App\Enums\WorkspaceRole;
+use App\Models\Menu;
+use App\Models\MenuSection;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Workspace;
@@ -202,6 +204,33 @@ test('a workspace logo and cover can be uploaded', function () {
         ->and($workspace->cover_path)->toBe(ImageVariant::Cover->pathFor($workspace->id))
         ->and($workspace->logo_version)->toBe(1)
         ->and($workspace->cover_version)->toBe(1);
+});
+
+test('a menu banner and section image can be uploaded', function () {
+    Storage::fake();
+    [$user, $workspace] = userWithWorkspace();
+    $menu = Menu::factory()->create(['workspace_id' => $workspace->id]);
+    $section = MenuSection::factory()->create(['menu_id' => $menu->id]);
+
+    $this->actingAs($user)
+        ->post(route('workspace.menus.banner.store', [$workspace, $menu]), [
+            'image' => makeImageUpload(1600, 900, 'banner.jpg'),
+        ])
+        ->assertRedirect();
+
+    $this->post(route('workspace.menus.sections.image.store', [$workspace, $menu, $section]), [
+        'image' => makeImageUpload(800, 800, 'section.png', 'png'),
+    ])->assertRedirect();
+
+    $menu->refresh();
+    $section->refresh();
+
+    expect($menu->banner_path)->toBe(ImageVariant::MenuBanner->pathFor($menu->id))
+        ->and($menu->banner_version)->toBe(1)
+        ->and($section->image_path)->toBe(ImageVariant::MenuSection->pathFor($section->id))
+        ->and($section->image_version)->toBe(1)
+        ->and(Storage::disk()->exists($menu->banner_path))->toBeTrue()
+        ->and(Storage::disk()->exists($section->image_path))->toBeTrue();
 });
 
 test('application code does not mention minio or r2', function () {

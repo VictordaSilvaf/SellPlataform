@@ -14,6 +14,8 @@ export type SaleStatus = 'PAID' | 'PENDING' | 'CANCELLED';
 
 export type MenuStatus = 'DRAFT' | 'ACTIVE' | 'INACTIVE';
 
+export type SectionImageSide = 'LEFT' | 'RIGHT';
+
 export type Menu = {
     id: number;
     name: string;
@@ -27,6 +29,9 @@ export type MenuSection = {
     id: number;
     name: string;
     description: string | null;
+    background_color: string;
+    image_url: string | null;
+    image_side: SectionImageSide;
     active: boolean;
     position: number;
     items: MenuProductItem[];

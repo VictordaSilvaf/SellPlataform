@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\MenuStatus;
+use App\Support\Images\ImageUrl;
 use Database\Factories\MenuFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,11 +21,23 @@ use Illuminate\Support\Str;
  * @property string $slug
  * @property string|null $description
  * @property MenuStatus $status
+ * @property string|null $banner_path
+ * @property int $banner_version
+ * @property string $banner_color
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Workspace $workspace
  */
-#[Fillable(['workspace_id', 'name', 'slug', 'description', 'status'])]
+#[Fillable([
+    'workspace_id',
+    'name',
+    'slug',
+    'description',
+    'status',
+    'banner_path',
+    'banner_version',
+    'banner_color',
+])]
 class Menu extends Model
 {
     /** @use HasFactory<MenuFactory> */
@@ -35,6 +48,8 @@ class Menu extends Model
      */
     protected $attributes = [
         'status' => 'DRAFT',
+        'banner_version' => 0,
+        'banner_color' => '#141414',
     ];
 
     /**
@@ -44,6 +59,7 @@ class Menu extends Model
     {
         return [
             'status' => MenuStatus::class,
+            'banner_version' => 'integer',
         ];
     }
 
@@ -80,6 +96,11 @@ class Menu extends Model
             ->withPivot(['position', 'active', 'unavailable_reason', 'menu_section_id'])
             ->withTimestamps()
             ->orderByPivot('position');
+    }
+
+    public function bannerUrl(): ?string
+    {
+        return ImageUrl::public($this->banner_path, $this->banner_version);
     }
 
     public static function uniqueSlug(string $name): string

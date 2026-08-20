@@ -20,6 +20,8 @@ class MenuSectionFactory extends Factory
             'menu_id' => Menu::factory(),
             'name' => fake()->words(2, true),
             'description' => fake()->optional()->sentence(),
+            'background_color' => '#1A1A1A',
+            'image_side' => 'LEFT',
             'position' => fake()->numberBetween(1, 10),
             'active' => true,
         ];

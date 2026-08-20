@@ -26,11 +26,12 @@ class UpdateMenuRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:5000'],
             'status' => ['required', Rule::enum(MenuStatus::class)],
+            'banner_color' => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
         ];
     }
 
     /**
-     * @return array{name: string, description: string|null, status: MenuStatus}
+     * @return array{name: string, description: string|null, status: MenuStatus, banner_color: string}
      */
     public function menuData(): array
     {
@@ -38,6 +39,7 @@ class UpdateMenuRequest extends FormRequest
             'name' => $this->string('name')->toString(),
             'description' => $this->filled('description') ? $this->string('description')->toString() : null,
             'status' => MenuStatus::from($this->string('status')->toString()),
+            'banner_color' => mb_strtoupper($this->string('banner_color')->toString()),
         ];
     }
 }

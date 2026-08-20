@@ -38,6 +38,8 @@ test('a section can be created updated toggled and deleted without removing prod
     $this->put(route('workspace.menus.sections.update', [$workspace, $menu, $section]), [
         'name' => 'Burgers',
         'description' => 'Atualizado',
+        'background_color' => '#222222',
+        'image_side' => 'RIGHT',
     ])->assertRedirect();
 
     $this->patch(route('workspace.menus.sections.toggle', [$workspace, $menu, $section]), [
@@ -46,6 +48,8 @@ test('a section can be created updated toggled and deleted without removing prod
 
     expect($section->fresh()->name)->toBe('Burgers')
         ->and($section->fresh()->description)->toBe('Atualizado')
+        ->and($section->fresh()->background_color)->toBe('#222222')
+        ->and($section->fresh()->image_side->value)->toBe('RIGHT')
         ->and($section->fresh()->active)->toBeFalse();
 
     $this->delete(route('workspace.menus.sections.destroy', [$workspace, $menu, $section]))
@@ -76,7 +80,14 @@ test('empty and inactive sections are hidden on the public menu', function () {
     $menu = Menu::factory()->create(['status' => MenuStatus::Active]);
     $empty = MenuSection::factory()->create(['menu_id' => $menu->id, 'name' => 'Vazia', 'position' => 1]);
     $inactive = MenuSection::factory()->inactive()->create(['menu_id' => $menu->id, 'name' => 'Inativa', 'position' => 2]);
-    $visible = MenuSection::factory()->create(['menu_id' => $menu->id, 'name' => 'Hambúrgueres', 'position' => 3]);
+    $visible = MenuSection::factory()->create([
+        'menu_id' => $menu->id,
+        'name' => 'Hambúrgueres',
+        'description' => 'Clássicos da casa',
+        'background_color' => '#221111',
+        'image_side' => 'RIGHT',
+        'position' => 3,
+    ]);
     $product = Product::factory()->create(['workspace_id' => $menu->workspace_id, 'name' => 'X-Bacon']);
     $other = Product::factory()->create(['workspace_id' => $menu->workspace_id, 'name' => 'Combo']);
     $loose = Product::factory()->create(['workspace_id' => $menu->workspace_id, 'name' => 'Água']);
@@ -113,6 +124,9 @@ test('empty and inactive sections are hidden on the public menu', function () {
             ->where('unsectioned.0.name', 'Água')
             ->has('sections', 1)
             ->where('sections.0.name', 'Hambúrgueres')
+            ->where('sections.0.description', 'Clássicos da casa')
+            ->where('sections.0.background_color', '#221111')
+            ->where('sections.0.image_side', 'RIGHT')
             ->where('sections.0.products.0.name', 'X-Bacon')
             ->missing('workspace.id'));
 });
@@ -143,6 +157,8 @@ test('a section from another menu cannot be updated', function () {
     $this->actingAs($user)
         ->put(route('workspace.menus.sections.update', [$workspace, $menu, $section]), [
             'name' => 'Hack',
+            'background_color' => '#1A1A1A',
+            'image_side' => 'LEFT',
         ])
         ->assertNotFound();
 });

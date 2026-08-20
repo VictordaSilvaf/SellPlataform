@@ -32,6 +32,16 @@ return [
             'max_height' => 900,
             'mode' => 'cover',
         ],
+        'menu_banner' => [
+            'max_width' => 1600,
+            'max_height' => 900,
+            'mode' => 'cover',
+        ],
+        'menu_section' => [
+            'max_width' => 1200,
+            'max_height' => 1200,
+            'mode' => 'cover',
+        ],
     ],
 
 ];

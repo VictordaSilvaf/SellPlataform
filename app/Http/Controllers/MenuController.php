@@ -6,6 +6,7 @@ use App\Actions\Menus\CreateMenuAction;
 use App\Actions\Menus\DeleteMenuAction;
 use App\Actions\Menus\UpdateMenuAction;
 use App\Enums\MenuStatus;
+use App\Enums\SectionImageSide;
 use App\Http\Requests\Menus\StoreMenuRequest;
 use App\Http\Requests\Menus\UpdateMenuRequest;
 use App\Models\Menu;
@@ -105,12 +106,17 @@ class MenuController extends Controller
                 'slug' => $menu->slug,
                 'description' => $menu->description,
                 'status' => $menu->status->value,
+                'banner_url' => $menu->bannerUrl(),
+                'banner_color' => $menu->banner_color,
                 'public_url' => route('menus.public', $menu),
             ],
             'sections' => $menu->sections->map(fn ($section): array => [
                 'id' => $section->id,
                 'name' => $section->name,
                 'description' => $section->description,
+                'background_color' => $section->background_color,
+                'image_url' => $section->imageUrl(),
+                'image_side' => $section->image_side->value,
                 'active' => $section->active,
                 'position' => $section->position,
                 'items' => $section->menuProducts->map($mapItem)->values(),
@@ -127,6 +133,10 @@ class MenuController extends Controller
             'statuses' => collect(MenuStatus::cases())->map(fn (MenuStatus $status) => [
                 'value' => $status->value,
                 'label' => $status->label(),
+            ])->values(),
+            'imageSides' => collect(SectionImageSide::cases())->map(fn (SectionImageSide $side) => [
+                'value' => $side->value,
+                'label' => $side->label(),
             ])->values(),
             'canManage' => $request->user()->can('update', $menu),
         ]);

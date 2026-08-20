@@ -126,6 +126,7 @@ test('renaming a menu does not change its slug', function () {
         ->put(route('workspace.menus.update', [$workspace, $menu]), [
             'name' => 'Cardápio da Lanchonete',
             'status' => MenuStatus::Active->value,
+            'banner_color' => '#141414',
         ])
         ->assertRedirect();
 
@@ -313,6 +314,7 @@ test('a stranger cannot modify a menu', function () {
         ->put(route('workspace.menus.update', [$workspace, $menu]), [
             'name' => 'Hack',
             'status' => MenuStatus::Active->value,
+            'banner_color' => '#141414',
         ])
         ->assertForbidden();
 });
@@ -407,13 +409,15 @@ test('a guest can view an active public menu without logging in', function () {
             ->where('available', true)
             ->where('workspace.name', $menu->workspace->name)
             ->where('menu.name', 'Cardápio Principal')
+            ->where('menu.banner_color', '#141414')
             ->has('unsectioned', 1)
             ->where('unsectioned.0.name', 'X-Bacon')
             ->where('unsectioned.0.price', 3490)
             ->has('sections', 0)
             ->missing('menu.id')
             ->missing('workspace.id')
-            ->missing('workspace.slug'));
+            ->missing('workspace.slug')
+            ->missing('workspace.cover_url'));
 });
 
 test('a draft public menu shows the unavailable page', function () {

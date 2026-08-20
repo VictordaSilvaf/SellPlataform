@@ -4,8 +4,10 @@ use App\Http\Controllers\Auth\VerifyEmailCodeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeRedirectController;
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\MenuMediaController;
 use App\Http\Controllers\MenuProductController;
 use App\Http\Controllers\MenuSectionController;
+use App\Http\Controllers\MenuSectionMediaController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductImageController;
@@ -59,6 +61,8 @@ Route::middleware(['auth', 'verified', 'workspace.member'])
         Route::get('menus/{menu}', [MenuController::class, 'show'])->name('menus.show');
         Route::put('menus/{menu}', [MenuController::class, 'update'])->name('menus.update');
         Route::delete('menus/{menu}', [MenuController::class, 'destroy'])->name('menus.destroy');
+        Route::post('menus/{menu}/banner', [MenuMediaController::class, 'store'])->name('menus.banner.store');
+        Route::delete('menus/{menu}/banner', [MenuMediaController::class, 'destroy'])->name('menus.banner.destroy');
         Route::post('menus/{menu}/products', [MenuProductController::class, 'store'])->name('menus.products.store');
         Route::patch('menus/{menu}/products/order', [MenuProductController::class, 'order'])->name('menus.products.order');
         Route::delete('menus/{menu}/products/{product}', [MenuProductController::class, 'destroy'])->name('menus.products.destroy');
@@ -67,6 +71,8 @@ Route::middleware(['auth', 'verified', 'workspace.member'])
         Route::put('menus/{menu}/sections/{section}', [MenuSectionController::class, 'update'])->name('menus.sections.update');
         Route::delete('menus/{menu}/sections/{section}', [MenuSectionController::class, 'destroy'])->name('menus.sections.destroy');
         Route::patch('menus/{menu}/sections/{section}/toggle', [MenuSectionController::class, 'toggle'])->name('menus.sections.toggle');
+        Route::post('menus/{menu}/sections/{section}/image', [MenuSectionMediaController::class, 'store'])->name('menus.sections.image.store');
+        Route::delete('menus/{menu}/sections/{section}/image', [MenuSectionMediaController::class, 'destroy'])->name('menus.sections.image.destroy');
         Route::patch('menus/{menu}/sections/order', [MenuSectionController::class, 'order'])->name('menus.sections.order');
 
         Route::get('sales', [SaleController::class, 'index'])->name('sales.index');

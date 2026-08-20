@@ -55,6 +55,9 @@ class PublicMenuController extends Controller
                     return [
                         'name' => $section->name,
                         'description' => $section->description,
+                        'background_color' => $section->background_color,
+                        'image_url' => $section->imageUrl(),
+                        'image_side' => $section->image_side->value,
                         'products' => $products,
                     ];
                 })
@@ -68,11 +71,12 @@ class PublicMenuController extends Controller
             'workspace' => [
                 'name' => $menu->workspace->name,
                 'logo_url' => $menu->workspace->logoUrl(),
-                'cover_url' => $menu->workspace->coverUrl(),
             ],
             'menu' => [
                 'name' => $menu->name,
                 'description' => $menu->description,
+                'banner_url' => $menu->bannerUrl(),
+                'banner_color' => $menu->banner_color,
             ],
             'unsectioned' => $unsectioned,
             'sections' => $sections,
