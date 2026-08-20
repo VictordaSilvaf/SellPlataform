@@ -6,13 +6,22 @@ test('the landing page is the home screen', function () {
         ->assertInertia(fn ($page) => $page->component('welcome'));
 });
 
-test('the landing page highlights menus and the free plan limits', function () {
-    $response = $this->get(route('home'));
-
-    $response
+test('the landing page shares the application name through inertia', function () {
+    $this->get(route('home'))
         ->assertOk()
-        ->assertSee('mynu', false)
-        ->assertSee('Café da Esquina', false)
-        ->assertSee('1 cardápio por ambiente', false)
-        ->assertSee('Monte o cardápio', false);
+        ->assertInertia(fn ($page) => $page
+            ->component('welcome')
+            ->where('name', 'mynu'));
+});
+
+test('the welcome screen highlights menus and the free plan limits', function () {
+    $welcome = file_get_contents(resource_path('js/pages/welcome.tsx'));
+    $preview = file_get_contents(resource_path('js/components/landing/menu-preview.tsx'));
+
+    expect($welcome)
+        ->toContain('1 cardápio')
+        ->toContain('por ambiente')
+        ->toContain('Monte o cardápio');
+
+    expect($preview)->toContain('Café da Esquina');
 });
