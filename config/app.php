@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'name' => EnvName::resolve(env('APP_NAME'), 'SellPlataform'),
+    'name' => EnvName::resolve(env('APP_NAME'), 'mynu'),
 
     /*
     |--------------------------------------------------------------------------

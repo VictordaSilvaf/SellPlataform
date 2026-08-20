@@ -54,6 +54,7 @@ test('email verification messages are in portuguese and follow the brand', funct
         ->toContain('Olá, João!')
         ->toContain('Confirmar e-mail')
         ->toContain(config('app.name'))
+        ->toContain('mynu')
         ->not->toContain('${APP_NAME}')
         ->toContain('logo.png')
         ->toContain('#a67c62');

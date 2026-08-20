@@ -116,7 +116,7 @@ return [
         'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
         'name' => EnvName::resolve(
             env('MAIL_FROM_NAME'),
-            EnvName::resolve(env('APP_NAME'), 'SellPlataform'),
+            EnvName::resolve(env('APP_NAME'), 'mynu'),
         ),
     ],
 

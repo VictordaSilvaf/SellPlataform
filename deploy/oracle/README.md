@@ -1,6 +1,6 @@
 # Publicação: Oracle Cloud + Cloudflare
 
-Este guia descreve como publicar o SellPlataform na Oracle Cloud Infrastructure (OCI), com DNS e proxy na Cloudflare, usando os arquivos em `deploy/oracle`.
+Este guia descreve como publicar o mynu na Oracle Cloud Infrastructure (OCI), com DNS e proxy na Cloudflare, usando os arquivos em `deploy/oracle`.
 
 Para publicar no **Render** em vez desta VM, use [`deploy/render/README.md`](../render/README.md) e o `render.yaml` na raiz do repositório.
 

@@ -11,6 +11,7 @@ test('the render blueprint uses docker, redis queues, and postgres url', functio
         ->toContain('key: DB_URL')
         ->toContain('key: QUEUE_CONNECTION')
         ->toContain('key: MAIL_FROM_NAME')
+        ->toContain('value: mynu')
         ->toContain('value: redis')
         ->toContain('sellplataform-kv');
 });
@@ -36,4 +37,9 @@ test('the application trusts reverse proxies', function () {
 
 test('the health endpoint remains available', function () {
     $this->get('/up')->assertOk();
+});
+
+test('the application display name is mynu', function () {
+    expect(config('app.name'))->toBe('mynu')
+        ->and(config('mail.from.name'))->toBe('mynu');
 });
