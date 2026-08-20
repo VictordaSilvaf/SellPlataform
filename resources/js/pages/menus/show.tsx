@@ -128,9 +128,12 @@ export default function MenusShow({
     const { currentWorkspace } = usePage().props;
     const slug = currentWorkspace?.slug ?? '';
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [sectionDialogOpen, setSectionDialogOpen] = useState(false);
     const [targetSectionId, setTargetSectionId] = useState<number | null>(null);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [sectionName, setSectionName] = useState('');
+    const [sectionDescription, setSectionDescription] = useState('');
+    const [creatingSection, setCreatingSection] = useState(false);
 
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -401,12 +404,25 @@ export default function MenusShow({
             return;
         }
 
+        setCreatingSection(true);
+
         router.post(
             storeSection.url(params),
-            { name: sectionName.trim() },
+            {
+                name: sectionName.trim(),
+                description:
+                    sectionDescription.trim() === ''
+                        ? null
+                        : sectionDescription.trim(),
+            },
             {
                 preserveScroll: true,
-                onSuccess: () => setSectionName(''),
+                onSuccess: () => {
+                    setSectionName('');
+                    setSectionDescription('');
+                    setSectionDialogOpen(false);
+                },
+                onFinish: () => setCreatingSection(false),
             },
         );
     }
@@ -554,21 +570,13 @@ export default function MenusShow({
                         <h2 className="text-base font-medium">Produtos</h2>
                         {canManage && (
                             <div className="flex gap-2">
-                                <Input
-                                    value={sectionName}
-                                    onChange={(event) =>
-                                        setSectionName(event.target.value)
-                                    }
-                                    placeholder="Nova sessão"
-                                    className="w-40"
-                                />
                                 <Button
                                     size="sm"
                                     variant="outline"
                                     type="button"
-                                    onClick={createSection}
+                                    onClick={() => setSectionDialogOpen(true)}
                                 >
-                                    Criar sessão
+                                    Nova sessão
                                 </Button>
                                 <Button
                                     size="sm"
@@ -582,6 +590,24 @@ export default function MenusShow({
                             </div>
                         )}
                     </div>
+
+                    <CreateSectionDialog
+                        open={sectionDialogOpen}
+                        onOpenChange={(open) => {
+                            setSectionDialogOpen(open);
+
+                            if (!open) {
+                                setSectionName('');
+                                setSectionDescription('');
+                            }
+                        }}
+                        name={sectionName}
+                        description={sectionDescription}
+                        processing={creatingSection}
+                        onNameChange={setSectionName}
+                        onDescriptionChange={setSectionDescription}
+                        onSubmit={createSection}
+                    />
 
                     <AddProductsDialog
                         open={dialogOpen}
@@ -659,6 +685,89 @@ export default function MenusShow({
                 </section>
             </div>
         </>
+    );
+}
+
+function CreateSectionDialog({
+    open,
+    onOpenChange,
+    name,
+    description,
+    processing,
+    onNameChange,
+    onDescriptionChange,
+    onSubmit,
+}: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    name: string;
+    description: string;
+    processing: boolean;
+    onNameChange: (value: string) => void;
+    onDescriptionChange: (value: string) => void;
+    onSubmit: () => void;
+}) {
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="motion-safe:duration-200">
+                <DialogHeader>
+                    <DialogTitle>Nova sessão</DialogTitle>
+                    <DialogDescription>
+                        Agrupe produtos no cardápio. A descrição aparece na
+                        vitrine pública.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4">
+                    <div className="grid gap-2">
+                        <Label htmlFor="section-name">Nome</Label>
+                        <Input
+                            id="section-name"
+                            value={name}
+                            onChange={(event) =>
+                                onNameChange(event.target.value)
+                            }
+                            placeholder="Hambúrgueres"
+                            autoFocus
+                            onKeyDown={(event) => {
+                                if (event.key === 'Enter') {
+                                    event.preventDefault();
+                                    onSubmit();
+                                }
+                            }}
+                        />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="section-description">Descrição</Label>
+                        <textarea
+                            id="section-description"
+                            value={description}
+                            onChange={(event) =>
+                                onDescriptionChange(event.target.value)
+                            }
+                            placeholder="Opcional — ex.: nossos clássicos"
+                            className="min-h-24 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                        />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => onOpenChange(false)}
+                    >
+                        Cancelar
+                    </Button>
+                    <Button
+                        type="button"
+                        disabled={processing || name.trim() === ''}
+                        onClick={onSubmit}
+                    >
+                        {processing && <Spinner />}
+                        Criar sessão
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 }
 
@@ -859,6 +968,42 @@ function SortableSection({
                     </>
                 )}
             </div>
+            {canManage ? (
+                <textarea
+                    key={`section-description-${section.id}-${section.description ?? ''}`}
+                    defaultValue={section.description ?? ''}
+                    placeholder="Descrição da sessão (opcional)"
+                    className="mb-3 min-h-16 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                    onBlur={(event) => {
+                        const next =
+                            event.target.value.trim() === ''
+                                ? null
+                                : event.target.value.trim();
+
+                        if (next === section.description) {
+                            return;
+                        }
+
+                        router.put(
+                            updateSection.url({
+                                ...params,
+                                section: section.id,
+                            }),
+                            {
+                                name: section.name,
+                                description: next,
+                            },
+                            { preserveScroll: true },
+                        );
+                    }}
+                />
+            ) : (
+                section.description && (
+                    <p className="mb-3 text-sm text-muted-foreground">
+                        {section.description}
+                    </p>
+                )
+            )}
             <ProductGroup
                 id={String(section.id)}
                 title={null}

@@ -93,7 +93,7 @@ export function AppSidebar() {
                                         href={workspaceSettings(workspace.slug)}
                                     >
                                         <Settings />
-                                        <span>Workspace</span>
+                                        <span>Ambiente</span>
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>

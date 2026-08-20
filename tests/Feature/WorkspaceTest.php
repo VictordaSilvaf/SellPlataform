@@ -124,3 +124,31 @@ test('the owner can update a workspace name', function () {
 
     expect($workspace->fresh()->name)->toBe('Loja Nova');
 });
+
+test('the owner can delete a workspace', function () {
+    [$user, $workspace] = userWithWorkspace();
+    $slug = $workspace->slug;
+
+    $this->actingAs($user)
+        ->delete(route('workspace.settings.destroy', $workspace))
+        ->assertRedirect(route('dashboard'));
+
+    expect(Workspace::query()->where('slug', $slug)->exists())->toBeFalse();
+});
+
+test('a member cannot delete a workspace', function () {
+    [$owner, $workspace] = userWithWorkspace();
+    $member = User::factory()->create();
+
+    WorkspaceMember::factory()->create([
+        'workspace_id' => $workspace->id,
+        'user_id' => $member->id,
+        'role' => WorkspaceRole::Member,
+    ]);
+
+    $this->actingAs($member)
+        ->delete(route('workspace.settings.destroy', $workspace))
+        ->assertForbidden();
+
+    expect(Workspace::query()->whereKey($workspace->id)->exists())->toBeTrue();
+});

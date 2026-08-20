@@ -1,9 +1,21 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { ShoppingCart } from 'lucide-react';
+import type { KeyboardEvent, MouseEvent } from 'react';
 import { EmptyState } from '@/components/empty-state';
 import Heading from '@/components/heading';
 import { Pagination } from '@/components/pagination';
 import { SaleStatusBadge } from '@/components/sales/sale-status-badge';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -15,8 +27,74 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { formatMoney } from '@/lib/money';
-import { create, index, show } from '@/routes/workspace/sales';
+import { cancel, create, index, pay, show } from '@/routes/workspace/sales';
 import type { Paginated, Sale } from '@/types';
+
+function stopRowNavigation(event: MouseEvent | KeyboardEvent): void {
+    event.stopPropagation();
+}
+
+function SaleRowActions({
+    sale,
+    slug,
+    canManage,
+}: {
+    sale: Sale;
+    slug: string;
+    canManage: boolean;
+}) {
+    if (!canManage || sale.status === 'CANCELLED') {
+        return null;
+    }
+
+    const params = { workspace: slug, sale: sale.id };
+
+    return (
+        <div className="flex flex-wrap items-center justify-end gap-2">
+            {sale.status === 'PENDING' && (
+                <Button
+                    size="sm"
+                    onClick={(event) => {
+                        stopRowNavigation(event);
+                        router.patch(pay.url(params));
+                    }}
+                >
+                    Marcar pago
+                </Button>
+            )}
+            <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={stopRowNavigation}
+                    >
+                        Cancelar
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent onClick={stopRowNavigation}>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
+                            Tem certeza que deseja cancelar esta venda?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            A venda #{sale.id} deixará de contar nos
+                            indicadores.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Voltar</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={() => router.patch(cancel.url(params))}
+                        >
+                            Cancelar venda
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </div>
+    );
+}
 
 export default function SalesIndex({
     sales,
@@ -27,8 +105,13 @@ export default function SalesIndex({
     filters: { search: string; status: string; from: string; to: string };
     canCreate: boolean;
 }) {
-    const { currentWorkspace } = usePage().props;
+    const { currentWorkspace, can } = usePage().props;
     const slug = currentWorkspace?.slug ?? '';
+    const canManage = can.manageSales;
+
+    const openSale = (saleId: number): void => {
+        router.visit(show.url({ workspace: slug, sale: saleId }));
+    };
 
     return (
         <>
@@ -101,21 +184,31 @@ export default function SalesIndex({
                                     <TableHead>Itens</TableHead>
                                     <TableHead>Total</TableHead>
                                     <TableHead>Status</TableHead>
+                                    {canManage && <TableHead className="text-right">Ações</TableHead>}
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {sales.data.map((sale) => (
-                                    <TableRow key={sale.id}>
+                                    <TableRow
+                                        key={sale.id}
+                                        role="link"
+                                        tabIndex={0}
+                                        className="cursor-pointer"
+                                        onClick={() => openSale(sale.id)}
+                                        onKeyDown={(event) => {
+                                            if (
+                                                event.key === 'Enter' ||
+                                                event.key === ' '
+                                            ) {
+                                                event.preventDefault();
+                                                openSale(sale.id);
+                                            }
+                                        }}
+                                    >
                                         <TableCell>
-                                            <Link
-                                                href={show.url({
-                                                    workspace: slug,
-                                                    sale: sale.id,
-                                                })}
-                                                className="font-medium underline-offset-4 hover:underline"
-                                            >
+                                            <span className="font-medium">
                                                 #{sale.id}
-                                            </Link>
+                                            </span>
                                             {sale.description && (
                                                 <p className="mt-1 max-w-56 truncate text-xs text-muted-foreground">
                                                     {sale.description}
@@ -138,6 +231,18 @@ export default function SalesIndex({
                                                 status={sale.status}
                                             />
                                         </TableCell>
+                                        {canManage && (
+                                            <TableCell
+                                                className="text-right"
+                                                onClick={stopRowNavigation}
+                                            >
+                                                <SaleRowActions
+                                                    sale={sale}
+                                                    slug={slug}
+                                                    canManage={canManage}
+                                                />
+                                            </TableCell>
+                                        )}
                                     </TableRow>
                                 ))}
                             </TableBody>

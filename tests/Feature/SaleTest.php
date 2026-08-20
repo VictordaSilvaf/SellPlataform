@@ -130,6 +130,44 @@ test('a pending sale can be marked as paid', function () {
     expect($sale->fresh()->status)->toBe(SaleStatus::Paid);
 });
 
+test('a sale can be cancelled from the listing flow', function () {
+    [$user, $workspace] = userWithWorkspace();
+    $product = Product::factory()->create(['workspace_id' => $workspace->id, 'price' => 10000]);
+
+    $this->actingAs($user)->post(route('workspace.sales.store', $workspace), [
+        'items' => [['product_id' => $product->id, 'quantity' => 1]],
+        'status' => SaleStatus::Pending->value,
+    ]);
+
+    $sale = Sale::query()->first();
+
+    $this->actingAs($user)
+        ->from(route('workspace.sales.index', $workspace))
+        ->patch(route('workspace.sales.cancel', [$workspace, $sale]))
+        ->assertRedirect(route('workspace.sales.index', $workspace));
+
+    expect($sale->fresh()->status)->toBe(SaleStatus::Cancelled);
+});
+
+test('the sales index page is available to workspace members', function () {
+    [$user, $workspace] = userWithWorkspace();
+    $product = Product::factory()->create(['workspace_id' => $workspace->id, 'price' => 10000]);
+
+    $this->actingAs($user)->post(route('workspace.sales.store', $workspace), [
+        'items' => [['product_id' => $product->id, 'quantity' => 1]],
+        'status' => SaleStatus::Paid->value,
+        'description' => 'Balcão',
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('workspace.sales.index', $workspace))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('sales/index')
+            ->has('sales.data', 1)
+            ->where('sales.data.0.description', 'Balcão'));
+});
+
 test('a user cannot view a sale from another workspace', function () {
     [$owner, $workspace] = userWithWorkspace();
     $product = Product::factory()->create(['workspace_id' => $workspace->id, 'price' => 10000]);

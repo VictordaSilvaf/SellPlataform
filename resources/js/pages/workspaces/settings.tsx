@@ -42,10 +42,10 @@ export default function WorkspaceSettings({
 
     return (
         <>
-            <Head title="Workspace" />
+            <Head title="Ambiente" />
             <div className="flex flex-col gap-8 px-4 py-8 md:px-8">
                 <Heading
-                    title="Workspace"
+                    title="Ambiente"
                     description="Identidade visual e dados do ambiente."
                 />
                 {can.manageBranding && (
@@ -100,7 +100,7 @@ export default function WorkspaceSettings({
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
                                 <Button variant="destructive" className="mt-4">
-                                    Excluir workspace
+                                    Excluir ambiente
                                 </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
@@ -135,5 +135,5 @@ export default function WorkspaceSettings({
 }
 
 WorkspaceSettings.layout = {
-    breadcrumbs: [{ title: 'Workspace', href: '#' }],
+    breadcrumbs: [{ title: 'Ambiente', href: '#' }],
 };

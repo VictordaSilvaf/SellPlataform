@@ -25,6 +25,7 @@ test('a section can be created updated toggled and deleted without removing prod
 
     expect($section)->not->toBeNull()
         ->and($section->name)->toBe('Hambúrgueres')
+        ->and($section->description)->toBe('Nossos clássicos')
         ->and($section->position)->toBe(1);
 
     $this->post(route('workspace.menus.products.store', [$workspace, $menu]), [
@@ -44,6 +45,7 @@ test('a section can be created updated toggled and deleted without removing prod
     ])->assertRedirect();
 
     expect($section->fresh()->name)->toBe('Burgers')
+        ->and($section->fresh()->description)->toBe('Atualizado')
         ->and($section->fresh()->active)->toBeFalse();
 
     $this->delete(route('workspace.menus.sections.destroy', [$workspace, $menu, $section]))
