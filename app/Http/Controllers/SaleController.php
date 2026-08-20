@@ -26,6 +26,7 @@ class SaleController extends Controller
                 $query->where(function ($nested) use ($search): void {
                     $nested
                         ->where('id', $search)
+                        ->orWhere('description', 'like', '%'.$search.'%')
                         ->orWhereHas('items.product', fn ($productQuery) => $productQuery->where('name', 'like', '%'.$search.'%'));
                 });
             })

@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 class CreateSaleAction
 {
     /**
-     * @param  array{items: list<array{product_id: int, quantity: int}>, status: string}  $data
+     * @param  array{items: list<array{product_id: int, quantity: int}>, status: string, description?: string|null}  $data
      */
     public function handle(Workspace $workspace, array $data): Sale
     {
@@ -66,6 +66,7 @@ class CreateSaleAction
 
             $sale = $workspace->sales()->create([
                 'status' => $status,
+                'description' => $data['description'] ?? null,
                 'total' => $total,
                 'sold_at' => now(),
             ]);

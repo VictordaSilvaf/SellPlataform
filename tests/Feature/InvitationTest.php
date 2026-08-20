@@ -6,9 +6,9 @@ use App\Models\User;
 use App\Models\WorkspaceInvitation;
 use App\Models\WorkspaceMember;
 use App\Notifications\WorkspaceInvitationNotification;
+use App\Support\Auth\EmailVerificationCode;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\URL;
 
 test('an owner can invite an existing user', function () {
     Notification::fake();
@@ -143,13 +143,11 @@ test('a user created through an invitation joins the workspace after verificatio
 
     $user = User::query()->where('email', 'joana@email.com')->first();
 
-    $verificationUrl = URL::temporarySignedRoute(
-        'verification.verify',
-        now()->addMinutes(60),
-        ['id' => $user->id, 'hash' => sha1($user->email)],
-    );
+    $code = EmailVerificationCode::issue($user);
 
-    $this->actingAs($user)->get($verificationUrl);
+    $this->actingAs($user)->post(route('verification.verify-code'), [
+        'code' => $code,
+    ]);
 
     expect($user->fresh()->isMemberOf($workspace))->toBeTrue();
 });

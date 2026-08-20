@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\User;
 use App\Models\WorkspaceInvitation;
+use App\Support\Auth\EmailVerificationCode;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\URL;
 
@@ -18,14 +19,10 @@ $action = $argv[1] ?? '';
 $value = $argv[2] ?? '';
 
 match ($action) {
-    'verification-url' => (static function () use ($value): void {
+    'verification-code' => (static function () use ($value): void {
         $user = User::query()->where('email', $value)->firstOrFail();
 
-        echo URL::temporarySignedRoute(
-            'verification.verify',
-            now()->addMinutes(60),
-            ['id' => $user->id, 'hash' => sha1($user->email)],
-        );
+        echo EmailVerificationCode::issue($user);
     })(),
     'invitation-token' => (static function () use ($value): void {
         echo (string) WorkspaceInvitation::query()

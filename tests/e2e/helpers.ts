@@ -42,9 +42,9 @@ export async function registerAndVerify(
     await page.getByTestId('register-user-button').click();
     await page.waitForURL(/verify-email|email\/verify|verification/);
 
-    const verificationUrl = e2eQuery('verification-url', user.email);
-    const parsed = new URL(verificationUrl);
-    await page.goto(`${parsed.pathname}${parsed.search}`);
+    const code = e2eQuery('verification-code', user.email);
+    await page.locator('input[data-input-otp]').fill(code);
+    await page.getByRole('button', { name: 'Confirmar e-mail' }).click();
     await page.waitForURL(/workspaces\/create|\/app\//);
 }
 

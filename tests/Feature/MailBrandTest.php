@@ -52,12 +52,13 @@ test('email verification messages are in portuguese and follow the brand', funct
     expect(config('mail.from.name'))->not->toContain('${');
     expect($html)
         ->toContain('Olá, João!')
-        ->toContain('Confirmar e-mail')
+        ->toMatch('/\b\d{6}\b/')
         ->toContain(config('app.name'))
         ->toContain('mynu')
         ->not->toContain('${APP_NAME}')
+        ->not->toContain('Confirmar e-mail')
         ->toContain('logo.png')
-        ->toContain('#a67c62');
+        ->toContain('#f3ebe5');
 });
 
 test('password reset messages are in portuguese and follow the brand', function () {

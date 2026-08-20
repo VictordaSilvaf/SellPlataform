@@ -28,11 +28,12 @@ class StoreSaleRequest extends FormRequest
             'items.*.product_id' => ['required', 'integer'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
             'status' => ['required', Rule::enum(SaleStatus::class)->only([SaleStatus::Paid, SaleStatus::Pending])],
+            'description' => ['nullable', 'string', 'max:1000'],
         ];
     }
 
     /**
-     * @return array{items: list<array{product_id: int, quantity: int}>, status: string}
+     * @return array{items: list<array{product_id: int, quantity: int}>, status: string, description: string|null}
      */
     public function saleData(): array
     {
@@ -52,6 +53,7 @@ class StoreSaleRequest extends FormRequest
         return [
             'items' => $items,
             'status' => $this->string('status')->toString(),
+            'description' => $this->filled('description') ? $this->string('description')->toString() : null,
         ];
     }
 }

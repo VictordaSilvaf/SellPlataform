@@ -32,6 +32,7 @@ const saleSchema = z.object({
         )
         .min(1, 'Adicione pelo menos um produto'),
     status: z.enum(['PAID', 'PENDING']),
+    description: z.string().max(1000).optional(),
 });
 
 type SaleFormValues = z.infer<typeof saleSchema>;
@@ -81,6 +82,7 @@ function SaleForm({
         defaultValues: {
             items: [{ product_id: products[0]?.id ?? 0, quantity: 1 }],
             status: 'PAID',
+            description: '',
         },
     });
     const fieldArray = useFieldArray({ control: form.control, name: 'items' });
@@ -317,6 +319,23 @@ function Payment() {
     );
 }
 
+function Notes() {
+    const { register, errors } = useSaleForm();
+
+    return (
+        <div className="grid gap-2">
+            <Label htmlFor="description">Descrição</Label>
+            <textarea
+                id="description"
+                {...register('description')}
+                placeholder="Observação opcional da venda"
+                className="min-h-24 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            />
+            <InputError message={errors.description?.message} />
+        </div>
+    );
+}
+
 function Summary() {
     const { products, items } = useSaleForm();
     const total = items.reduce((sum, item) => {
@@ -353,6 +372,7 @@ function Actions({ cancelHref }: { cancelHref: string }) {
 
 SaleForm.Products = Products;
 SaleForm.Payment = Payment;
+SaleForm.Notes = Notes;
 SaleForm.Summary = Summary;
 SaleForm.Actions = Actions;
 

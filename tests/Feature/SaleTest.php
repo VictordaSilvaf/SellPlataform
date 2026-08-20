@@ -17,6 +17,7 @@ test('a sale can be created with multiple products', function () {
                 ['product_id' => $pants->id, 'quantity' => 1],
             ],
             'status' => SaleStatus::Paid->value,
+            'description' => 'Mesa 4 — pedido da noite',
         ])
         ->assertRedirect();
 
@@ -24,6 +25,7 @@ test('a sale can be created with multiple products', function () {
 
     expect($sale)->not->toBeNull()
         ->and($sale->total)->toBe(35000)
+        ->and($sale->description)->toBe('Mesa 4 — pedido da noite')
         ->and($sale->items)->toHaveCount(2)
         ->and($sale->items->first()->unit_price)->toBe(10000);
 });

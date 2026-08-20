@@ -1,9 +1,11 @@
 <?php
 
 use App\Models\User;
+use App\Support\Auth\EmailVerificationCode;
 use Illuminate\Auth\Events\Verified;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Notification;
 use Laravel\Fortify\Features;
 
 beforeEach(function () {
@@ -18,18 +20,16 @@ test('email verification screen can be rendered', function () {
     $response->assertOk();
 });
 
-test('email can be verified', function () {
+test('email can be verified with a valid code', function () {
     $user = User::factory()->unverified()->create();
 
     Event::fake();
 
-    $verificationUrl = URL::temporarySignedRoute(
-        'verification.verify',
-        now()->addMinutes(60),
-        ['id' => $user->id, 'hash' => sha1($user->email)],
-    );
+    $code = EmailVerificationCode::issue($user);
 
-    $response = $this->actingAs($user)->get($verificationUrl);
+    $response = $this->actingAs($user)->post(route('verification.verify-code'), [
+        'code' => $code,
+    ]);
 
     Event::assertDispatched(Verified::class);
 
@@ -37,35 +37,16 @@ test('email can be verified', function () {
     $response->assertRedirect(route('dashboard', absolute: false).'?verified=1');
 });
 
-test('email is not verified with invalid hash', function () {
+test('email is not verified with an invalid code', function () {
     $user = User::factory()->unverified()->create();
 
     Event::fake();
 
-    $verificationUrl = URL::temporarySignedRoute(
-        'verification.verify',
-        now()->addMinutes(60),
-        ['id' => $user->id, 'hash' => sha1('wrong-email')],
-    );
+    EmailVerificationCode::issue($user);
 
-    $this->actingAs($user)->get($verificationUrl);
-
-    Event::assertNotDispatched(Verified::class);
-    expect($user->fresh()->hasVerifiedEmail())->toBeFalse();
-});
-
-test('email is not verified with invalid user id', function () {
-    $user = User::factory()->unverified()->create();
-
-    Event::fake();
-
-    $verificationUrl = URL::temporarySignedRoute(
-        'verification.verify',
-        now()->addMinutes(60),
-        ['id' => 123, 'hash' => sha1($user->email)],
-    );
-
-    $this->actingAs($user)->get($verificationUrl);
+    $this->actingAs($user)->post(route('verification.verify-code'), [
+        'code' => '000000',
+    ])->assertSessionHasErrors('code');
 
     Event::assertNotDispatched(Verified::class);
     expect($user->fresh()->hasVerifiedEmail())->toBeFalse();
@@ -82,20 +63,34 @@ test('verified user is redirected to dashboard from verification prompt', functi
     $response->assertRedirect(route('dashboard', absolute: false));
 });
 
-test('already verified user visiting verification link is redirected without firing event again', function () {
+test('already verified user submitting a code is redirected without firing event again', function () {
     $user = User::factory()->create();
 
     Event::fake();
 
-    $verificationUrl = URL::temporarySignedRoute(
-        'verification.verify',
-        now()->addMinutes(60),
-        ['id' => $user->id, 'hash' => sha1($user->email)],
-    );
-
-    $this->actingAs($user)->get($verificationUrl)
-        ->assertRedirect(route('dashboard', absolute: false).'?verified=1');
+    $this->actingAs($user)->post(route('verification.verify-code'), [
+        'code' => '123456',
+    ])->assertRedirect(route('dashboard', absolute: false).'?verified=1');
 
     Event::assertNotDispatched(Verified::class);
     expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
+});
+
+test('verification emails contain a code instead of a link button', function () {
+    Notification::fake();
+
+    $user = User::factory()->unverified()->create();
+
+    $user->sendEmailVerificationNotification();
+
+    Notification::assertSentTo($user, VerifyEmail::class, function (VerifyEmail $notification) use ($user): bool {
+        $mail = $notification->toMail($user);
+        $html = (string) $mail->render();
+
+        expect($mail->actionUrl ?? null)->toBeNull()
+            ->and($html)->toMatch('/\b\d{6}\b/')
+            ->and($html)->not->toContain('Confirmar e-mail');
+
+        return true;
+    });
 });

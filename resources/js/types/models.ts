@@ -71,6 +71,7 @@ export type Sale = {
     id: number;
     workspace_id: number;
     status: SaleStatus;
+    description: string | null;
     total: number;
     sold_at: string;
     created_at: string;

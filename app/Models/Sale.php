@@ -16,6 +16,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $workspace_id
  * @property SaleStatus $status
+ * @property string|null $description
  * @property int $total
  * @property Carbon $sold_at
  * @property int|null $customer_id
@@ -25,7 +26,7 @@ use Illuminate\Support\Carbon;
  *
  * @method static Builder<static> notCancelled()
  */
-#[Fillable(['workspace_id', 'status', 'total', 'sold_at', 'customer_id'])]
+#[Fillable(['workspace_id', 'status', 'description', 'total', 'sold_at', 'customer_id'])]
 class Sale extends Model
 {
     /** @use HasFactory<SaleFactory> */

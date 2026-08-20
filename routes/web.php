@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\VerifyEmailCodeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeRedirectController;
 use App\Http\Controllers\MenuController;
@@ -19,6 +20,12 @@ use Illuminate\Support\Facades\Route;
 Route::inertia('/', 'welcome')->name('home');
 
 Route::get('cardapio/{menu:slug}', PublicMenuController::class)->name('menus.public');
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('email/verify-code', VerifyEmailCodeController::class)
+        ->middleware('throttle:6,1')
+        ->name('verification.verify-code');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', HomeRedirectController::class)->name('dashboard');

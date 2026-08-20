@@ -96,15 +96,15 @@ export default function Profile({
                                                 className="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
                                             >
                                                 Clique aqui para reenviar o
-                                                e-mail de verificação.
+                                                código de verificação.
                                             </Link>
                                         </p>
 
                                         {status ===
                                             'verification-link-sent' && (
                                             <div className="mt-2 text-sm font-medium text-green-600">
-                                                Um novo link de verificação foi
-                                                enviado para o seu e-mail.
+                                                Um novo código de verificação
+                                                foi enviado para o seu e-mail.
                                             </div>
                                         )}
                                     </div>

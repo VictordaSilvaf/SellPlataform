@@ -29,6 +29,7 @@ export default function SalesCreate({
                 ) : (
                     <SaleForm products={products}>
                         <SaleForm.Products />
+                        <SaleForm.Notes />
                         <SaleForm.Payment />
                         <SaleForm.Summary />
                         <SaleForm.Actions cancelHref={index.url(slug)} />

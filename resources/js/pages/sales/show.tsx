@@ -42,6 +42,11 @@ export default function SalesShow({
                 <p className="text-sm text-muted-foreground">
                     Data: {new Date(sale.sold_at).toLocaleDateString('pt-BR')}
                 </p>
+                {sale.description && (
+                    <p className="rounded-lg border bg-card px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap">
+                        {sale.description}
+                    </p>
+                )}
                 <div className="rounded-lg border">
                     {sale.items?.map((item) => (
                         <div

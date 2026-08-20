@@ -116,6 +116,11 @@ export default function SalesIndex({
                                             >
                                                 #{sale.id}
                                             </Link>
+                                            {sale.description && (
+                                                <p className="mt-1 max-w-56 truncate text-xs text-muted-foreground">
+                                                    {sale.description}
+                                                </p>
+                                            )}
                                         </TableCell>
                                         <TableCell>
                                             {new Date(

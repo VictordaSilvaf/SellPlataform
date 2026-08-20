@@ -7,9 +7,11 @@ use App\Actions\Fortify\ResetUserPassword;
 use App\Http\Responses\LoginResponse;
 use App\Http\Responses\RegisterResponse;
 use App\Models\WorkspaceInvitation;
+use App\Support\Auth\EmailVerificationCode;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\RateLimiter;
@@ -115,13 +117,21 @@ class FortifyServiceProvider extends ServiceProvider
         $appName = config('app.name');
 
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) use ($appName): MailMessage {
+            unset($url);
+
+            $code = $notifiable instanceof Authenticatable
+                ? EmailVerificationCode::issue($notifiable)
+                : (string) random_int(100000, 999999);
+
             $name = is_string($notifiable->name ?? null) ? $notifiable->name : '';
+            $minutes = EmailVerificationCode::TTL_MINUTES;
 
             return (new MailMessage)
                 ->subject('Confirme seu e-mail')
                 ->greeting($name !== '' ? 'Olá, '.$name.'!' : 'Olá!')
-                ->line('Clique no botão para confirmar que este e-mail é seu e ativar sua conta no '.$appName.'.')
-                ->action('Confirmar e-mail', $url)
+                ->line('Use o código abaixo para confirmar que este e-mail é seu e ativar sua conta no '.$appName.'.')
+                ->line('**'.$code.'**')
+                ->line('O código expira em '.$minutes.' minutos.')
                 ->line('Se você não criou esta conta, ignore esta mensagem.')
                 ->salutation("Até mais,\n".$appName);
         });
